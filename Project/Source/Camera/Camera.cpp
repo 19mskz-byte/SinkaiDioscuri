@@ -1,7 +1,7 @@
 #include "DxLib.h"
 #include "Camera.h"
 #include "../Input/Input.h"
-#include "../Player/Player.h"
+#include "../Player/GimmickPlayer.h"
 #include "../Map/MapChip.h"
 
 #define DEBUG_CAMERA_SPEED (4.0f)

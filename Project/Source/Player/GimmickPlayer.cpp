@@ -4,22 +4,22 @@
 #include "../Input/Input.h"
 #include "../Map/MapChip.h"
 
-//struct  PlayerAnimationParam
-//{
-//	int interval;
-//	int frameNum;
-//	int width;
-//	int height;
-//};
+struct  PlayerAnimationParam
+{
+	int interval;
+	int frameNum;
+	int width;
+	int height;
+};
 
-//const PlayerAnimationParam GIMMICK_PLAYER_ANIM_PARAM[PLAYER_ANIM_MAX] =
-//{
-//	8,4,72,72,
-//	5,8,72,72,
-//	8,2,72,72,
-//	8,2,72,72,
-//	8,1,72,72,
-//};
+const PlayerAnimationParam GIMMICK_PLAYER_ANIM_PARAM[GIMMICK_PLAYER_ANIM_MAX] =
+{
+	8,7,80,80,
+	5,8,72,72,
+	8,2,72,72,
+	8,2,72,72,
+	8,1,72,72,
+};
 
 //プレイヤー設定
 #define GIMMICK_PLAYER_DEFAULT_POS_X (100.0f)
@@ -43,10 +43,12 @@
 #define GIMMICK_PLAYER_BOX_COLLISION_WIDTH (20.0f)
 #define GIMMICK_PLAYER_BOX_COLLISION_HEIGHT (44.0f)
 
-PlayerData g_PlayerData = { 0 };
-PlayerData g_PrevPlayerData = { 0 };
+GimmickPlayerData g_PlayerData = { 0 };
+GimmickPlayerData g_PrevPlayerData = { 0 };
 
-void GimmickPlayerCalcBoxCollision(PlayerData player, float& x, float& y, float& w, float& h);
+void StartGimmickPlayerAnimation(GimmickPlayerAnimationType anim);
+void UpdateGimmickPlayerAnimation();
+void GimmickPlayerCalcBoxCollision(GimmickPlayerData player, float& x, float& y, float& w, float& h);
 
 void InitGimmickPlayer()
 {
@@ -55,12 +57,13 @@ void InitGimmickPlayer()
 	g_PlayerData.moveX = 0.0f;
 	g_PlayerData.moveY = 0.0f;
 	g_PlayerData.active = false;
-	/*g_PlayerData.playAnim = GIMMICK_PLAYER_ANIM_NONE;*/
+	g_PlayerData.playAnim = GIMMICK_PLAYER_ANIM_NONE;
 
-	/*for (int i = 0; i < GIMMICK_PALYER_ANIM_MAX; i++)
+	for (int i = 0; i < GIMMICK_PLAYER_ANIM_MAX; i++)
 	{
-		InitAnimation(&g_PlayerData.animation[i]);
-	}*/
+		g_PlayerData.animation[i] = new AnimationData;
+		InitAnimation(g_PlayerData.animation[i]);
+	}
 
 	//構造体はmemsetで0初期化できる
 	memset(&g_PlayerData.bodycollision, 0, sizeof(g_PlayerData.bodycollision));
@@ -68,7 +71,7 @@ void InitGimmickPlayer()
 
 void LoadGimmickPlayer()
 {
-
+	g_PlayerData.animation[GIMMICK_PLAYER_ANIM_IDLE]->handle = LoadGraph("Data/Player/GimmickPlayerIdle.png");
 }
 
 void StartGimmickPlayer()
@@ -80,7 +83,7 @@ void StartGimmickPlayer()
 	g_PlayerData.bodycollision.width = GIMMICK_PLAYER_BOX_COLLISION_WIDTH;
 	g_PlayerData.bodycollision.height =GIMMICK_PLAYER_HEIGHT;
 
-	/*StartPlayerAnimation(GIMMICK_PLAYER_ANIM_IDLE);*/
+	StartGimmickPlayerAnimation(GIMMICK_PLAYER_ANIM_IDLE);
 }
 
 void StepGimmickPlayer()
@@ -136,13 +139,18 @@ void UpdateGimmickPlayer()
 	g_PlayerData.pos.x += g_PlayerData.moveX;
 	g_PlayerData.pos.y += g_PlayerData.moveY;
 
-	/*UpdatePlayerAnimation();*/
+	UpdateGimmickPlayerAnimation();
 }
 
 void DrawGimmickPlayer()
 {
 	if (!g_PlayerData.active)return;
 
+	// アニメーション描画でプレイヤーを描画する
+	GimmickPlayerAnimationType animType = g_PlayerData.playAnim;
+	AnimationData* animData = g_PlayerData.animation[animType];
+	DrawAnimation(animData, g_PlayerData.pos.x, g_PlayerData.pos.y, g_PlayerData.isTurn);
+	
 	// 当たり判定描画
 	float x, y, w, h;
 	GimmickPlayerCalcBoxCollision(g_PlayerData, x, y, w, h);
@@ -151,20 +159,20 @@ void DrawGimmickPlayer()
 
 void FinGimmickPlayer()
 {
-	/*for (int i = 0; i < GIMMICK_PLAYER_ANIM_MAX; i++)
+	for (int i = 0; i < GIMMICK_PLAYER_ANIM_MAX; i++)
 	{
-		DeleteGraph(g_PlayerData.animation[i].handle);
-	}*/
+		DeleteGraph(g_PlayerData.animation[i]->handle);
+	}
 }
 
-PlayerData GetGimmickPlayer()
+GimmickPlayerData* GetGimmickPlayer()
 {
-	return g_PlayerData;
+	return &g_PlayerData;
 }
 
 void GimmickPlayerHitNormalBlock(MapChipData mapChipData)
 {
-	PlayerData player = g_PlayerData;
+	GimmickPlayerData player = g_PlayerData;
 	BlockData* block = mapChipData.data;
 	const float POS_OFFSET = GIMMICK_PLAYER_MAP_COLLISION_OFFSET;
 	const float SIZE_OFFSET = GIMMICK_PLAYER_MAP_COLLISION_OFFSET * 2;
@@ -227,7 +235,62 @@ void GimmickPlayerHitNormalBlock(MapChipData mapChipData)
 	}
 }
 
-void GimmickPlayerCalcBoxCollision(PlayerData player, float& x, float& y, float& w, float& h)
+void StartGimmickPlayerAnimation(GimmickPlayerAnimationType anim)
+{
+	// 再生中のアニメーションであれば何もしない
+	if (anim == g_PlayerData.playAnim) return;
+
+	// 再生中アニメーション設定
+	g_PlayerData.playAnim = anim;
+
+	// 再生に必要なデータを取得
+	AnimationData* animData = g_PlayerData.animation[anim];
+	PlayerAnimationParam animParam = GIMMICK_PLAYER_ANIM_PARAM[anim];
+
+	// アニメーション再生
+	StartAnimation(animData, g_PlayerData.pos.x, g_PlayerData.pos.y, animParam.interval, animParam.frameNum, animParam.width, animParam.height, true);
+
+}
+
+void UpdateGimmickPlayerAnimation()
+{
+	// 地上にいるか
+	if (!g_PlayerData.isAir)
+	{
+		// 横に移動していれば走っている
+		if (g_PlayerData.moveX < 0.0f || g_PlayerData.moveX > 0.0f)
+		{
+			// 走るアニメーション
+			StartGimmickPlayerAnimation(GIMMICK_PLAYER_ANIM_RUN);
+		}
+		else
+		{
+			// 移動していなければ待機
+			StartGimmickPlayerAnimation(GIMMICK_PLAYER_ANIM_IDLE);
+		}
+	}
+	// 空中にいる
+	else
+	{
+		// 上昇していればジャンプアニメーション
+		if (g_PlayerData.moveY < 0.0f)
+		{
+			StartGimmickPlayerAnimation(GIMMICK_PLAYER_ANIM_JUMP);
+		}
+		// 下降していれば落下アニメーション
+		else if (g_PlayerData.moveY > 0.0f)
+		{
+			StartGimmickPlayerAnimation(GIMMICK_PLAYER_ANIM_FALL);
+		}
+	}
+
+	// アニメーション更新
+	GimmickPlayerAnimationType animType = g_PlayerData.playAnim;
+	AnimationData* animData = g_PlayerData.animation[animType];
+	UpdateAnimation(animData);
+}
+
+void GimmickPlayerCalcBoxCollision(GimmickPlayerData player, float& x, float& y, float& w, float& h)
 {
 	x = player.isTurn ?
 		player.pos.x + GIMMICK_PLAYER_WIDTH - player.bodycollision.pos.x - player.bodycollision.width :

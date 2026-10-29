@@ -4,22 +4,22 @@
 #include "../Input/Input.h"
 #include "../Map/MapChip.h"
 
-//struct  PlayerAnimationParam
-//{
-//	int interval;
-//	int frameNum;
-//	int width;
-//	int height;
-//};
+struct  PlayerAnimationParam
+{
+	int interval;
+	int frameNum;
+	int width;
+	int height;
+};
 
-//const PlayerAnimationParam POWERFUL_PLAYER_ANIM_PARAM[PLAYER_ANIM_MAX] =
-//{
-//	8,4,72,72,
-//	5,8,72,72,
-//	8,2,72,72,
-//	8,2,72,72,
-//	8,1,72,72,
-//};
+const PlayerAnimationParam POWERFUL_PLAYER_ANIM_PARAM[POWERFUL_PLAYER_ANIM_MAX] =
+{
+	8,4,72,72,
+	5,8,72,72,
+	8,2,72,72,
+	8,2,72,72,
+	8,1,72,72,
+};
 
 //プレイヤー設定
 #define POWERFUL_PLAYER_DEFAULT_POS_X (100.0f)
@@ -43,10 +43,12 @@
 #define POWERFUL_PLAYER_BOX_COLLISION_WIDTH (20.0f)
 #define POWERFUL_PLAYER_BOX_COLLISION_HEIGHT (44.0f)
 
-PlayerData g_PlayerData = { 0 };
-PlayerData g_PrevPlayerData = { 0 };
+PowerfulPlayerData g_PlayerData = { 0 };
+PowerfulPlayerData g_PrevPlayerData = { 0 };
 
-void PowerfulPlayerCalcBoxCollision(PlayerData player, float& x, float& y, float& w, float& h);
+void StartPowerfulPlayerAnimation(PowerfulPlayerAnimationType anim);
+void UpdatePowerfulPlayerAnimation();
+void PowerfulPlayerCalcBoxCollision(PowerfulPlayerData player, float& x, float& y, float& w, float& h);
 
 void InitPowerfulPlayer()
 {
@@ -55,12 +57,13 @@ void InitPowerfulPlayer()
 	g_PlayerData.moveX = 0.0f;
 	g_PlayerData.moveY = 0.0f;
 	g_PlayerData.active = false;
-	/*g_PlayerData.playAnim = POWERFUL_PLAYER_ANIM_NONE;*/
+	g_PlayerData.playAnim = POWERFUL_PLAYER_ANIM_NONE;
 
-	/*for (int i = 0; i < POWERFUL_PALYER_ANIM_MAX; i++)
+	for (int i = 0; i < POWERFUL_PLAYER_ANIM_MAX; i++)
 	{
-		InitAnimation(&g_PlayerData.animation[i]);
-	}*/
+		g_PlayerData.animation[i] = new AnimationData;
+		InitAnimation(g_PlayerData.animation[i]);
+	}
 
 	//構造体はmemsetで0初期化できる
 	memset(&g_PlayerData.bodycollision, 0, sizeof(g_PlayerData.bodycollision));
@@ -80,7 +83,7 @@ void StartPowerfulPlayer()
 	g_PlayerData.bodycollision.width = POWERFUL_PLAYER_BOX_COLLISION_WIDTH;
 	g_PlayerData.bodycollision.height = POWERFUL_PLAYER_HEIGHT;
 
-	/*StartPlayerAnimation(PLAYER_ANIM_IDLE);*/
+	StartPowerfulPlayerAnimation(POWERFUL_PLAYER_ANIM_IDLE);
 }
 
 void StepPowerfulPlayer()
@@ -147,20 +150,20 @@ void DrawPowerfulPlayer()
 
 void FinPowerfulPlayer()
 {
-	/*for (int i = 0; i < POWERFUL_PLAYER_ANIM_MAX; i++)
+	for (int i = 0; i < POWERFUL_PLAYER_ANIM_MAX; i++)
 	{
-		DeleteGraph(g_PlayerData.animation[i].handle);
-	}*/
+		DeleteGraph(g_PlayerData.animation[i]->handle);
+	}
 }
 
-PlayerData GetPowerfulPlayer()
+PowerfulPlayerData* GetPowerfulPlayer()
 {
-	return g_PlayerData;
+	return &g_PlayerData;
 }
 
 void PowerfulPlayerHitNormalBlock(MapChipData mapChipData)
 {
-	PlayerData player = g_PlayerData;
+	PowerfulPlayerData player = g_PlayerData;
 	BlockData* block = mapChipData.data;
 	const float POS_OFFSET = POWERFUL_PLAYER_MAP_COLLISION_OFFSET;
 	const float SIZE_OFFSET = POWERFUL_PLAYER_MAP_COLLISION_OFFSET * 2;
@@ -223,7 +226,7 @@ void PowerfulPlayerHitNormalBlock(MapChipData mapChipData)
 	}
 }
 
-void PowerfulPlayerCalcBoxCollision(PlayerData player, float& x, float& y, float& w, float& h)
+void PowerfulPlayerCalcBoxCollision(PowerfulPlayerData player, float& x, float& y, float& w, float& h)
 {
 	x = player.isTurn ?
 		player.pos.x + POWERFUL_PLAYER_WIDTH - player.bodycollision.pos.x - player.bodycollision.width :
@@ -231,4 +234,14 @@ void PowerfulPlayerCalcBoxCollision(PlayerData player, float& x, float& y, float
 	y = player.pos.y + player.bodycollision.pos.y;
 	w = player.bodycollision.width;
 	h = player.bodycollision.height;
+}
+
+void StartPowerfulPlayerAnimation(PowerfulPlayerAnimationType anim)
+{
+
+}
+
+void UpdatePowerfulPlayerAnimation()
+{
+
 }

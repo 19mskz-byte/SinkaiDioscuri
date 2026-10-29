@@ -2,6 +2,8 @@
 #include "Play.h"
 #include "../../Map/MapManager.h"
 #include "../../Camera/Camera.h"
+#include "../../Player/GimmickPlayer.h"
+#include "../../Player/PowerfulPlayer.h"
 
 void InitPlayScene()
 {
@@ -9,21 +11,27 @@ void InitPlayScene()
 
 	InitCamera();
 
-	/*InitPlayer();*/
+	InitGimmickPlayer();
+
+	InitPowerfulPlayer();
 }
 
 void StartPlayScene()
 {
 	StartMap();
 
-	/*StartPlayer();*/
+	StartGimmickPlayer();
+
+	StartPowerfulPlayer();
 }
 
 void LoadPlayScene()
 {
 	LoadMap();
 
-	/*LoadPlayer();*/
+	LoadGimmickPlayer();
+
+	LoadPowerfulPlayer();
 }
 void DrawPlayScene()
 {
@@ -31,26 +39,32 @@ void DrawPlayScene()
 
 	DrawCamera();
 
+	DrawGimmickPlayer();
 
-	/*DrawPlayer();*/
+	DrawPowerfulPlayer();
 }
 
 void UpdatePlayScene()
 {
+	UpdateGimmickPlayer();
 
-	/*UpdatePlayer();*/
+	UpdatePowerfulPlayer();
 }
 
 void FinPlayScene()
 {
 	FinMap();
 
-	/*FinPlayer();*/
+	FinGimmickPlayer();
+
+	FinPowerfulPlayer();
 }
 
 void StepPlayScene()
 {
 	StepCamera();
 
-	/*StepPlayer();*/
+	StepGimmickPlayer();
+
+	StepPowerfulPlayer();
 }
