@@ -18,7 +18,7 @@ void StepCamera()
 {
 	g_CameraData.pos.x = 1000;
 
-	g_CameraData.pos.y = 430;
+	g_CameraData.pos.y = 500;
 }
 
 void DrawCamera()

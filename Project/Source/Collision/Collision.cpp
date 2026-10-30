@@ -1,6 +1,7 @@
 #include "DxLib.h"
 #include "Collision.h"
 #include "../Player/PowerfulPlayer.h"
+#include "../Player/GimmickPlayer.h"
 #include "../Map/Block.h"
 #include "../Map//MapManager.h"
 #include <math.h>
@@ -117,3 +118,4 @@ bool CheckCircleCircle(float circleA_PosX, float circleA_PosY, float circleA_Rad
 
 	return false;
 }
+ 

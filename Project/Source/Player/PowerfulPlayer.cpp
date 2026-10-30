@@ -3,6 +3,7 @@
 #include "../Animation/Animation.h"
 #include "../Input/Input.h"
 #include "../Map/MapChip.h"
+#include "../Map/MapManager.h"
 
 struct  PlayerAnimationParam
 {
@@ -14,11 +15,11 @@ struct  PlayerAnimationParam
 
 const PlayerAnimationParam POWERFUL_PLAYER_ANIM_PARAM[POWERFUL_PLAYER_ANIM_MAX] =
 {
-	8,4,72,72,
-	5,8,72,72,
-	8,2,72,72,
-	8,2,72,72,
-	8,1,72,72,
+	8,7,80,80,
+	5,8,80,80,
+	8,2,80,80,
+	8,2,80,80,
+	8,1,80,80,
 };
 
 //プレイヤー設定
@@ -35,13 +36,14 @@ const PlayerAnimationParam POWERFUL_PLAYER_ANIM_PARAM[POWERFUL_PLAYER_ANIM_MAX] 
 //マップ衝突判定用のプレイヤーサイズ補正
 #define POWERFUL_PLAYER_MAP_COLLISION_OFFSET (0.1f)
 
-//矩形判定の位置補正
-#define POWERFUL_PLAYER_BOX_COLLISION_OFFSET_X (24.0f)
-#define POWERFUL_PLAYER_BOX_COLLISION_OFFSET_Y (44.0f)
-
+// 矩形判定の位置補正
 //判定サイズ
-#define POWERFUL_PLAYER_BOX_COLLISION_WIDTH (20.0f)
-#define POWERFUL_PLAYER_BOX_COLLISION_HEIGHT (44.0f)
+#define POWERFUL_PLAYER_BOX_COLLISION_OFFSET_X (24)
+#define POWERFUL_PLAYER_BOX_COLLISION_OFFSET_Y (20)
+#define POWERFUL_PLAYER_BOX_COLLISION_WIDTH (40.0f)
+#define POWERFUL_PLAYER_BOX_COLLISION_HEIGHT (80.0f)
+
+#define POWERFUL_PLAYER_CHECK_ROUDND_NUM (2)
 
 PowerfulPlayerData g_PlayerData = { 0 };
 PowerfulPlayerData g_PrevPlayerData = { 0 };
@@ -52,36 +54,36 @@ void PowerfulPlayerCalcBoxCollision(PowerfulPlayerData player, float& x, float& 
 
 void InitPowerfulPlayer()
 {
-	g_PlayerData.pos.x = POWERFUL_PLAYER_DEFAULT_POS_X;
-	g_PlayerData.pos.y = POWERFUL_PLAYER_DEFAULT_POS_Y;
-	g_PlayerData.moveX = 0.0f;
-	g_PlayerData.moveY = 0.0f;
+	//構造体はmemsetで0初期化できる
+	memset(&g_PlayerData.body, 0, sizeof(g_PlayerData.body));
 	g_PlayerData.active = false;
 	g_PlayerData.playAnim = POWERFUL_PLAYER_ANIM_NONE;
+	g_PlayerData.body.isAir = false;
 
 	for (int i = 0; i < POWERFUL_PLAYER_ANIM_MAX; i++)
 	{
 		g_PlayerData.animation[i] = new AnimationData;
 		InitAnimation(g_PlayerData.animation[i]);
 	}
-
-	//構造体はmemsetで0初期化できる
-	memset(&g_PlayerData.bodycollision, 0, sizeof(g_PlayerData.bodycollision));
 }
 
 void LoadPowerfulPlayer()
 {
-	
+	g_PlayerData.animation[POWERFUL_PLAYER_ANIM_IDLE]->handle = LoadGraph("Data/Player/PowerfulPlayerIdle.png");
 }
 
 void StartPowerfulPlayer()
 {
 	g_PlayerData.active = true;
+	g_PlayerData.body.pos.x = POWERFUL_PLAYER_DEFAULT_POS_X;
+	g_PlayerData.body.pos.y = POWERFUL_PLAYER_DEFAULT_POS_Y;
+	g_PlayerData.body.width = POWERFUL_PLAYER_BOX_COLLISION_WIDTH;
+	g_PlayerData.body.height = POWERFUL_PLAYER_HEIGHT;
 
 	g_PlayerData.bodycollision.pos.x = POWERFUL_PLAYER_BOX_COLLISION_OFFSET_X;
 	g_PlayerData.bodycollision.pos.y = POWERFUL_PLAYER_BOX_COLLISION_OFFSET_Y;
 	g_PlayerData.bodycollision.width = POWERFUL_PLAYER_BOX_COLLISION_WIDTH;
-	g_PlayerData.bodycollision.height = POWERFUL_PLAYER_HEIGHT;
+	g_PlayerData.bodycollision.height = POWERFUL_PLAYER_BOX_COLLISION_HEIGHT;
 
 	StartPowerfulPlayerAnimation(POWERFUL_PLAYER_ANIM_IDLE);
 }
@@ -95,29 +97,33 @@ void StepPowerfulPlayer()
 
 	g_PrevPlayerData = g_PlayerData;
 
-	g_PlayerData.moveX = 0.0f;
+	g_PlayerData.body.move.x = 0.0f;
 
-	g_PlayerData.moveY += POWERFUL_PLAYER_GRAVITY;
+	g_PlayerData.body.move.y += POWERFUL_PLAYER_GRAVITY;
 
-	if (IsInputKey(KEY_W))
+	if (IsInputKey(KEY_I))
 	{
-		g_PlayerData.moveY -= POWERFUL_PLAYER_JUMP_POWER;
+		g_PlayerData.body.move.y -= POWERFUL_PLAYER_JUMP_POWER;
 	}
-	if (IsInputKey(KEY_A))
+	if (IsInputKey(KEY_J))
 	{
-		g_PlayerData.moveX = -POWERFUL_PLAYER_MOVESPEED;
+		g_PlayerData.body.move.x = -POWERFUL_PLAYER_MOVESPEED;
 		g_PlayerData.isTurn = true;
 	}
-	if (IsInputKey(KEY_S))
+	if (IsInputKey(KEY_K))
 	{
-	
+
 	}
-	if (IsInputKey(KEY_D))
+	if (IsInputKey(KEY_L))
 	{
-		g_PlayerData.moveX = POWERFUL_PLAYER_MOVESPEED;
+		g_PlayerData.body.move.x = POWERFUL_PLAYER_MOVESPEED;
 		g_PlayerData.isTurn = false;
 	}
-	if (IsInputKey(KEY_F))
+	if (IsInputKey(KEY_H))
+	{
+
+	}
+	if (IsInputKey(KEY_U))
 	{
 
 	}
@@ -127,20 +133,30 @@ void UpdatePowerfulPlayer()
 {
 	if (!g_PlayerData.active)return;
 
-	if (g_PlayerData.moveY<0.0f || g_PlayerData.moveY>POWERFUL_PLAYER_GRAVITY)
+	if (g_PlayerData.body.move.y<0.0f || g_PlayerData.body.move.y>POWERFUL_PLAYER_GRAVITY)
 	{
-		g_PlayerData.isAir = true;
+		g_PlayerData.body.isAir = true;
 	}
 
-	g_PlayerData.pos.x += g_PlayerData.moveX;
-	g_PlayerData.pos.y += g_PlayerData.moveY;
+	g_PlayerData.body.pos.x += g_PlayerData.body.move.x;
+	g_PlayerData.body.pos.y += g_PlayerData.body.move.y;
 
-	/*UpdatePlayerAnimation();*/
+	// 当たり判定付きで移動
+	MoveWithCollision(&g_PlayerData.body);
+
+	UpdatePowerfulPlayerAnimation();
 }
 
 void DrawPowerfulPlayer()
 {
 	if (!g_PlayerData.active)return;
+
+	int playerX = (int)(g_PlayerData.body.pos.x + 0.5f);
+	int	playerY = (int)(g_PlayerData.body.pos.y + 0.5f);
+	// アニメーション描画でプレイヤーを描画する
+	PowerfulPlayerAnimationType animType = g_PlayerData.playAnim;
+	AnimationData* animData = g_PlayerData.animation[animType];
+	DrawAnimation(animData, playerX, playerY, g_PlayerData.isTurn);
 
 	// 当たり判定描画
 	float x, y, w, h;
@@ -161,87 +177,70 @@ PowerfulPlayerData* GetPowerfulPlayer()
 	return &g_PlayerData;
 }
 
-void PowerfulPlayerHitNormalBlock(MapChipData mapChipData)
-{
-	PowerfulPlayerData player = g_PlayerData;
-	BlockData* block = mapChipData.data;
-	const float POS_OFFSET = POWERFUL_PLAYER_MAP_COLLISION_OFFSET;
-	const float SIZE_OFFSET = POWERFUL_PLAYER_MAP_COLLISION_OFFSET * 2;
-
-	// ターンフラグは前回のものにしないと反転した分ずれる
-	player.isTurn = g_PrevPlayerData.isTurn;
-
-	// Y移動を戻し、横に当たっているかチェック
-	player.pos.x = g_PlayerData.pos.x;
-	player.pos.y = g_PrevPlayerData.pos.y;
-
-	// 当たり判定のボックス計算
-	float x, y, w, h;
-	PowerfulPlayerCalcBoxCollision(player, x, y, w, h);
-
-	if (CheckSquareSquare(x + POS_OFFSET, y + POS_OFFSET, w - SIZE_OFFSET, h - SIZE_OFFSET,
-		block->pos.x, block->pos.y, MAP_CHIP_WIDTH, MAP_CHIP_HEIGHT))
-	{
-		// 左からあたったか
-		if (player.moveX > 0.0f)
-		{
-			// 左に押し出す
-			g_PlayerData.pos.x -= (x + w) - block->pos.x;
-		}
-		// 右からあたったか
-		else if (player.moveX < 0.0f)
-		{
-			// 右に押し出す
-			g_PlayerData.pos.x += (block->pos.x + MAP_CHIP_WIDTH) - x;
-		}
-	}
-
-	// X移動を戻し、縦に当たっているかチェック
-	player.pos.x = g_PrevPlayerData.pos.x;
-	player.pos.y = g_PlayerData.pos.y;
-
-	// 当たり判定のボックス計算
-	PowerfulPlayerCalcBoxCollision(player, x, y, w, h);
-
-	// まだ当たっているなら縦に当たっている
-	if (CheckSquareSquare(x + POS_OFFSET, y + POS_OFFSET, w - SIZE_OFFSET, h - SIZE_OFFSET,
-		block->pos.x, block->pos.y, MAP_CHIP_WIDTH, MAP_CHIP_HEIGHT))
-	{
-		// Y移動量を0にする
-		g_PlayerData.moveY = 0.0f;
-
-		// 上からあたったか
-		if (player.moveY > 0.0f)
-		{
-			// 上に押し出す
-			g_PlayerData.pos.y -= (y + h) - block->pos.y;
-			g_PlayerData.isAir = false;
-		}
-		// 下からあたったか
-		else if (player.moveY < 0.0f)
-		{
-			// 下に押し出す
-			g_PlayerData.pos.y += (block->pos.y + MAP_CHIP_WIDTH) - y;
-		}
-	}
-}
-
-void PowerfulPlayerCalcBoxCollision(PowerfulPlayerData player, float& x, float& y, float& w, float& h)
-{
-	x = player.isTurn ?
-		player.pos.x + POWERFUL_PLAYER_WIDTH - player.bodycollision.pos.x - player.bodycollision.width :
-		player.pos.x + player.bodycollision.pos.x;
-	y = player.pos.y + player.bodycollision.pos.y;
-	w = player.bodycollision.width;
-	h = player.bodycollision.height;
-}
 
 void StartPowerfulPlayerAnimation(PowerfulPlayerAnimationType anim)
 {
+	// 再生中のアニメーションであれば何もしない
+	if (anim == g_PlayerData.playAnim) return;
+
+	// 再生中アニメーション設定
+	g_PlayerData.playAnim = anim;
+
+	// 再生に必要なデータを取得
+	AnimationData* animData = g_PlayerData.animation[anim];
+	PlayerAnimationParam animParam = POWERFUL_PLAYER_ANIM_PARAM[anim];
+
+	// アニメーション再生
+	StartAnimation(animData, g_PlayerData.body.pos.x, g_PlayerData.body.pos.y, animParam.interval, animParam.frameNum, animParam.width, animParam.height, true);
 
 }
 
 void UpdatePowerfulPlayerAnimation()
 {
+	// 地上にいるか
+	if (!g_PlayerData.body.isAir)
+	{
+		// 横に移動していれば走っている
+		if (g_PlayerData.body.move.x < 0.0f || g_PlayerData.body.move.y > 0.0f)
+		{
+			// 走るアニメーション
+			StartPowerfulPlayerAnimation(POWERFUL_PLAYER_ANIM_RUN);
+		}
+		else
+		{
+			// 移動していなければ待機
+			StartPowerfulPlayerAnimation(POWERFUL_PLAYER_ANIM_IDLE);
+		}
+	}
+	// 空中にいる
+	else
+	{
+		// 上昇していればジャンプアニメーション
+		if (g_PlayerData.body.move.y < 0.0f)
+		{
+			StartPowerfulPlayerAnimation(POWERFUL_PLAYER_ANIM_JUMP);
+		}
+		// 下降していれば落下アニメーション
+		else if (g_PlayerData.body.move.y > 0.0f)
+		{
+			StartPowerfulPlayerAnimation(POWERFUL_PLAYER_ANIM_FALL);
+		}
+	}
 
+	DrawFormatString(0, 23, GetColor(255, 255, 255), "プレイヤーの座標＝[%f, %f]", g_PlayerData.body.pos.x, g_PlayerData.body.pos.y);
+
+	// アニメーション更新
+	PowerfulPlayerAnimationType animType = g_PlayerData.playAnim;
+	AnimationData* animData = g_PlayerData.animation[animType];
+	UpdateAnimation(animData);
+}
+
+void PowerfulPlayerCalcBoxCollision(PowerfulPlayerData player, float& x, float& y, float& w, float& h)
+{
+	x = player.isTurn ?
+		player.body.pos.x + POWERFUL_PLAYER_WIDTH - player.bodycollision.pos.x - player.bodycollision.width :
+		player.body.pos.x + player.bodycollision.pos.x;
+	y = player.body.pos.y + player.bodycollision.pos.y;
+	w = player.bodycollision.width;
+	h = player.bodycollision.height;
 }

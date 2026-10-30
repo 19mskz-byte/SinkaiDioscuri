@@ -32,24 +32,18 @@ struct PowerfulPlayerData
 {
 	bool active;								// 生存フラグ
 	bool isTurn;								// 左を向いているか
-	bool isAir;									// 空中にいるか
-	VECTOR pos;									// 座標
-	float moveX;								// X移動量
-	float moveY;								// Y移動量
 	AnimationData* animation[POWERFUL_PLAYER_ANIM_MAX];	// アニメーション
 	PowerfulPlayerAnimationType playAnim;				// 再生中のアニメーション
-	BodyCollision bodycollision;			    // 矩形当たり判定
+	Body body;			    // 矩形当たり判定
+	BodyCollision bodycollision;			    
 };
 
 struct GimmickPlayerData
 {
 	bool active;								// 生存フラグ
 	bool isTurn;								// 左を向いているか
-	bool isAir;									// 空中にいるか
-	VECTOR pos;									// 座標
-	float moveX;								// X移動量
-	float moveY;								// Y移動量
 	AnimationData* animation[GIMMICK_PLAYER_ANIM_MAX];	// アニメーション
 	GimmickPlayerAnimationType playAnim;				// 再生中のアニメーション
-	BodyCollision bodycollision;			    // 矩形当たり判定
+	Body body;			    // 矩形当たり判定
+	BodyCollision bodycollision;
 };

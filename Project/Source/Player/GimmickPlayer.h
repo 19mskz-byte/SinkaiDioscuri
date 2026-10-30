@@ -20,6 +20,3 @@ void FinGimmickPlayer();
 
 // æ“¾ŠÖ”
 GimmickPlayerData* GetGimmickPlayer();
-
-// “–‚½‚è”»’è
-void GimmickPlayerHitNormalBlock(MapChipData mapChipData);

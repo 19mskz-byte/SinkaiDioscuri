@@ -20,6 +20,3 @@ void FinPowerfulPlayer();
 
 // æ“¾ŠÖ”
 PowerfulPlayerData* GetPowerfulPlayer();
-
-// “–‚½‚è”»’è
-void PowerfulPlayerHitNormalBlock(MapChipData mapChipData);

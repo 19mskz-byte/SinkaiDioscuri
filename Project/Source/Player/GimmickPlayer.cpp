@@ -3,6 +3,8 @@
 #include "../Animation/Animation.h"
 #include "../Input/Input.h"
 #include "../Map/MapChip.h"
+#include "../Map/MapManager.h"
+#include "../Camera/Camera.h"
 
 struct  PlayerAnimationParam
 {
@@ -15,14 +17,14 @@ struct  PlayerAnimationParam
 const PlayerAnimationParam GIMMICK_PLAYER_ANIM_PARAM[GIMMICK_PLAYER_ANIM_MAX] =
 {
 	8,7,80,80,
-	5,8,72,72,
-	8,2,72,72,
-	8,2,72,72,
-	8,1,72,72,
+	5,8,80,80,
+	8,2,80,80,
+	8,2,80,80,
+	8,1,80,80,
 };
 
 //プレイヤー設定
-#define GIMMICK_PLAYER_DEFAULT_POS_X (100.0f)
+#define GIMMICK_PLAYER_DEFAULT_POS_X (300.0f)
 #define GIMMICK_PLAYER_DEFAULT_POS_Y (600.0f)
 #define GIMMICK_PLAYER_MOVESPEED (4.0f)
 
@@ -35,13 +37,14 @@ const PlayerAnimationParam GIMMICK_PLAYER_ANIM_PARAM[GIMMICK_PLAYER_ANIM_MAX] =
 //マップ衝突判定用のプレイヤーサイズ補正
 #define GIMMICK_PLAYER_MAP_COLLISION_OFFSET (0.1f)
 
-//矩形判定の位置補正
-#define GIMMICK_PLAYER_BOX_COLLISION_OFFSET_X (24.0f)
-#define GIMMICK_PLAYER_BOX_COLLISION_OFFSET_Y (44.0f)
-
 //判定サイズ
-#define GIMMICK_PLAYER_BOX_COLLISION_WIDTH (20.0f)
-#define GIMMICK_PLAYER_BOX_COLLISION_HEIGHT (44.0f)
+// 矩形判定の位置補正
+#define GIMMICK_PLAYER_BOX_COLLISION_OFFSET_X (24)
+#define GIMMICK_PLAYER_BOX_COLLISION_OFFSET_Y (20)
+#define GIMMICK_PLAYER_BOX_COLLISION_WIDTH (40.0f)
+#define GIMMICK_PLAYER_BOX_COLLISION_HEIGHT (80.0f)
+
+#define GIMMICK_PLAYER_CHECK_ROUDND_NUM (2)
 
 GimmickPlayerData g_PlayerData = { 0 };
 GimmickPlayerData g_PrevPlayerData = { 0 };
@@ -52,21 +55,17 @@ void GimmickPlayerCalcBoxCollision(GimmickPlayerData player, float& x, float& y,
 
 void InitGimmickPlayer()
 {
-	g_PlayerData.pos.x = GIMMICK_PLAYER_DEFAULT_POS_X;
-	g_PlayerData.pos.y = GIMMICK_PLAYER_DEFAULT_POS_Y;
-	g_PlayerData.moveX = 0.0f;
-	g_PlayerData.moveY = 0.0f;
+	//構造体はmemsetで0初期化できる
+	memset(&g_PlayerData.body, 0, sizeof(g_PlayerData.body));
 	g_PlayerData.active = false;
 	g_PlayerData.playAnim = GIMMICK_PLAYER_ANIM_NONE;
+	g_PlayerData.body.isAir = false;
 
 	for (int i = 0; i < GIMMICK_PLAYER_ANIM_MAX; i++)
 	{
 		g_PlayerData.animation[i] = new AnimationData;
 		InitAnimation(g_PlayerData.animation[i]);
 	}
-
-	//構造体はmemsetで0初期化できる
-	memset(&g_PlayerData.bodycollision, 0, sizeof(g_PlayerData.bodycollision));
 }
 
 void LoadGimmickPlayer()
@@ -77,11 +76,15 @@ void LoadGimmickPlayer()
 void StartGimmickPlayer()
 {
 	g_PlayerData.active = true;
+	g_PlayerData.body.pos.x = GIMMICK_PLAYER_DEFAULT_POS_X;
+	g_PlayerData.body.pos.y = GIMMICK_PLAYER_DEFAULT_POS_Y;
+	g_PlayerData.body.width = GIMMICK_PLAYER_WIDTH;
+	g_PlayerData.body.height =GIMMICK_PLAYER_HEIGHT;
 
 	g_PlayerData.bodycollision.pos.x = GIMMICK_PLAYER_BOX_COLLISION_OFFSET_X;
 	g_PlayerData.bodycollision.pos.y = GIMMICK_PLAYER_BOX_COLLISION_OFFSET_Y;
 	g_PlayerData.bodycollision.width = GIMMICK_PLAYER_BOX_COLLISION_WIDTH;
-	g_PlayerData.bodycollision.height =GIMMICK_PLAYER_HEIGHT;
+	g_PlayerData.bodycollision.height = GIMMICK_PLAYER_BOX_COLLISION_HEIGHT;
 
 	StartGimmickPlayerAnimation(GIMMICK_PLAYER_ANIM_IDLE);
 }
@@ -95,17 +98,17 @@ void StepGimmickPlayer()
 
 	g_PrevPlayerData = g_PlayerData;
 
-	g_PlayerData.moveX = 0.0f;
+	g_PlayerData.body.move.x = 0.0f;
 
-	g_PlayerData.moveY += GIMMICK_PLAYER_GRAVITY;
+	g_PlayerData.body.move.y += GIMMICK_PLAYER_GRAVITY;
 
 	if (IsInputKey(KEY_I))
 	{
-		g_PlayerData.moveY -= GIMMICK_PLAYER_JUMP_POWER;
+		g_PlayerData.body.move.y = GIMMICK_PLAYER_JUMP_POWER;
 	}
 	if (IsInputKey(KEY_J))
 	{
-		g_PlayerData.moveX = -GIMMICK_PLAYER_MOVESPEED;
+		g_PlayerData.body.move.x = -GIMMICK_PLAYER_MOVESPEED;
 		g_PlayerData.isTurn = true;
 	}
 	if (IsInputKey(KEY_K))
@@ -114,7 +117,7 @@ void StepGimmickPlayer()
 	}
 	if (IsInputKey(KEY_L))
 	{
-		g_PlayerData.moveX = GIMMICK_PLAYER_MOVESPEED;
+		g_PlayerData.body.move.x = GIMMICK_PLAYER_MOVESPEED;
 		g_PlayerData.isTurn = false;
 	}
 	if (IsInputKey(KEY_H))
@@ -131,13 +134,18 @@ void UpdateGimmickPlayer()
 {
 	if (!g_PlayerData.active)return;
 
-	if (g_PlayerData.moveY<0.0f || g_PlayerData.moveY>GIMMICK_PLAYER_GRAVITY)
+	if (g_PlayerData.body.move.y<0.0f || g_PlayerData.body.move.y>GIMMICK_PLAYER_GRAVITY)
 	{
-		g_PlayerData.isAir = true;
+		g_PlayerData.body.isAir = true;
 	}
 
-	g_PlayerData.pos.x += g_PlayerData.moveX;
-	g_PlayerData.pos.y += g_PlayerData.moveY;
+	g_PlayerData.body.pos.x += g_PlayerData.body.move.x;
+	g_PlayerData.body.pos.y += g_PlayerData.body.move.y;
+
+	// 当たり判定付きで移動
+	MoveWithCollision(&g_PlayerData.body);
+
+	DrawFormatString(0, 13, GetColor(255, 255, 255), "プレイヤーの座標＝[%f, %f]", g_PlayerData.body.pos.x, g_PlayerData.body.pos.y);
 
 	UpdateGimmickPlayerAnimation();
 }
@@ -146,14 +154,22 @@ void DrawGimmickPlayer()
 {
 	if (!g_PlayerData.active)return;
 
+	int playerX = (int)(g_PlayerData.body.pos.x + 0.5f);
+	int	playerY = (int)(g_PlayerData.body.pos.y + 0.5f);
+
+	GimmickPlayerData temp = g_PlayerData;
+	CameraData camera = GetCamera();
+
+	temp.body.pos.y = g_PlayerData.body.pos.y - camera.pos.y;
+	
 	// アニメーション描画でプレイヤーを描画する
 	GimmickPlayerAnimationType animType = g_PlayerData.playAnim;
 	AnimationData* animData = g_PlayerData.animation[animType];
-	DrawAnimation(animData, g_PlayerData.pos.x, g_PlayerData.pos.y, g_PlayerData.isTurn);
+	DrawAnimation(animData, playerX, playerY, g_PlayerData.isTurn);
 	
 	// 当たり判定描画
 	float x, y, w, h;
-	GimmickPlayerCalcBoxCollision(g_PlayerData, x, y, w, h);
+	GimmickPlayerCalcBoxCollision(temp, x, y, w, h);
 	DrawBox((int)x, (int)y, (int)(x + w), (int)(y + h), GetColor(255, 255, 255), false);
 }
 
@@ -170,70 +186,6 @@ GimmickPlayerData* GetGimmickPlayer()
 	return &g_PlayerData;
 }
 
-void GimmickPlayerHitNormalBlock(MapChipData mapChipData)
-{
-	GimmickPlayerData player = g_PlayerData;
-	BlockData* block = mapChipData.data;
-	const float POS_OFFSET = GIMMICK_PLAYER_MAP_COLLISION_OFFSET;
-	const float SIZE_OFFSET = GIMMICK_PLAYER_MAP_COLLISION_OFFSET * 2;
-
-	// ターンフラグは前回のものにしないと反転した分ずれる
-	player.isTurn = g_PrevPlayerData.isTurn;
-
-	// Y移動を戻し、横に当たっているかチェック
-	player.pos.x = g_PlayerData.pos.x;
-	player.pos.y = g_PrevPlayerData.pos.y;
-
-	// 当たり判定のボックス計算
-	float x, y, w, h;
-	GimmickPlayerCalcBoxCollision(player, x, y, w, h);
-
-	if (CheckSquareSquare(x + POS_OFFSET, y + POS_OFFSET, w - SIZE_OFFSET, h - SIZE_OFFSET,
-		block->pos.x, block->pos.y, MAP_CHIP_WIDTH, MAP_CHIP_HEIGHT))
-	{
-		// 左からあたったか
-		if (player.moveX > 0.0f)
-		{
-			// 左に押し出す
-			g_PlayerData.pos.x -= (x + w) - block->pos.x;
-		}
-		// 右からあたったか
-		else if (player.moveX < 0.0f)
-		{
-			// 右に押し出す
-			g_PlayerData.pos.x += (block->pos.x + MAP_CHIP_WIDTH) - x;
-		}
-	}
-
-	// X移動を戻し、縦に当たっているかチェック
-	player.pos.x = g_PrevPlayerData.pos.x;
-	player.pos.y = g_PlayerData.pos.y;
-
-	// 当たり判定のボックス計算
-	GimmickPlayerCalcBoxCollision(player, x, y, w, h);
-
-	// まだ当たっているなら縦に当たっている
-	if (CheckSquareSquare(x + POS_OFFSET, y + POS_OFFSET, w - SIZE_OFFSET, h - SIZE_OFFSET,
-		block->pos.x, block->pos.y, MAP_CHIP_WIDTH, MAP_CHIP_HEIGHT))
-	{
-		// Y移動量を0にする
-		g_PlayerData.moveY = 0.0f;
-
-		// 上からあたったか
-		if (player.moveY > 0.0f)
-		{
-			// 上に押し出す
-			g_PlayerData.pos.y -= (y + h) - block->pos.y;
-			g_PlayerData.isAir = false;
-		}
-		// 下からあたったか
-		else if (player.moveY < 0.0f)
-		{
-			// 下に押し出す
-			g_PlayerData.pos.y += (block->pos.y + MAP_CHIP_WIDTH) - y;
-		}
-	}
-}
 
 void StartGimmickPlayerAnimation(GimmickPlayerAnimationType anim)
 {
@@ -248,17 +200,17 @@ void StartGimmickPlayerAnimation(GimmickPlayerAnimationType anim)
 	PlayerAnimationParam animParam = GIMMICK_PLAYER_ANIM_PARAM[anim];
 
 	// アニメーション再生
-	StartAnimation(animData, g_PlayerData.pos.x, g_PlayerData.pos.y, animParam.interval, animParam.frameNum, animParam.width, animParam.height, true);
+	StartAnimation(animData, g_PlayerData.body.pos.x, g_PlayerData.body.pos.y, animParam.interval, animParam.frameNum, animParam.width, animParam.height, true);
 
 }
 
 void UpdateGimmickPlayerAnimation()
 {
 	// 地上にいるか
-	if (!g_PlayerData.isAir)
+	if (!g_PlayerData.body.isAir)
 	{
 		// 横に移動していれば走っている
-		if (g_PlayerData.moveX < 0.0f || g_PlayerData.moveX > 0.0f)
+		if (g_PlayerData.body.move.x < 0.0f || g_PlayerData.body.move.y > 0.0f)
 		{
 			// 走るアニメーション
 			StartGimmickPlayerAnimation(GIMMICK_PLAYER_ANIM_RUN);
@@ -273,12 +225,12 @@ void UpdateGimmickPlayerAnimation()
 	else
 	{
 		// 上昇していればジャンプアニメーション
-		if (g_PlayerData.moveY < 0.0f)
+		if (g_PlayerData.body.move.y < 0.0f)
 		{
 			StartGimmickPlayerAnimation(GIMMICK_PLAYER_ANIM_JUMP);
 		}
 		// 下降していれば落下アニメーション
-		else if (g_PlayerData.moveY > 0.0f)
+		else if (g_PlayerData.body.move.y > 0.0f)
 		{
 			StartGimmickPlayerAnimation(GIMMICK_PLAYER_ANIM_FALL);
 		}
@@ -293,9 +245,9 @@ void UpdateGimmickPlayerAnimation()
 void GimmickPlayerCalcBoxCollision(GimmickPlayerData player, float& x, float& y, float& w, float& h)
 {
 	x = player.isTurn ?
-		player.pos.x + GIMMICK_PLAYER_WIDTH - player.bodycollision.pos.x - player.bodycollision.width :
-		player.pos.x + player.bodycollision.pos.x;
-	y = player.pos.y + player.bodycollision.pos.y;
+		player.body.pos.x + GIMMICK_PLAYER_WIDTH - player.bodycollision.pos.x - player.bodycollision.width :
+		player.body.pos.x + player.bodycollision.pos.x;
+	y = player.body.pos.y+player.bodycollision.pos.y;
 	w = player.bodycollision.width;
 	h = player.bodycollision.height;
 }

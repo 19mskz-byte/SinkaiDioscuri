@@ -33,127 +33,134 @@ void FinMap()
 {
 }
 
-void ChceckMapGimmickPlayerCollision()
+//void CheckMapGimmickPlayerCollision()
+//{
+//	GimmickPlayerData* player = GetGimmickPlayer();
+//
+//	// プレイヤーの足元の座標をマップチップのインデックスに変換
+//	int playerX = (int)(player->pos.x / MAP_CHIP_WIDTH);
+//	int playerY = (int)((player->pos.y + GIMMICK_PLAYER_HEIGHT) / MAP_CHIP_HEIGHT);
+//	// プレイヤーの左上にあるマップチップインデックス
+//	int left = playerX - CHECK_ROUND_NUM;
+//	int top = playerY - CHECK_ROUND_NUM;
+//	// プレイヤーの右下にあるマップチップインデックス
+//	int right = playerX + CHECK_ROUND_NUM;
+//	int bottom = playerY + CHECK_ROUND_NUM;
+//
+//	// 左上から3マスずつチェックしていく
+//	for (int y = top; y <= bottom; y++)
+//	{
+//		// マップチップからはみ出したら処理しなくていい
+//		if (y < 0 || y >= MAP_CHIP_Y_NUM) continue;
+//
+//		for (int x = left; x <= right; x++)
+//		{
+//			// マップチップからはみ出したら処理しなくていい
+//			if (x < 0 || x >= MAP_CHIP_X_NUM) continue;
+//
+//			// マップチップ番号を取得
+//			MapChipData mapChipData = GetMapChipData(x, y);
+//			switch (mapChipData.mapChip)
+//			{
+//			case NORMAL_BLOCK:
+//				GimmickPlayerHitNormalBlock(mapChipData);
+//				break;
+//			}
+//		}
+//	}
+//}
+//
+//void CheckMapPowerfulPlayerCollision()
+//{
+//	PowerfulPlayerData* player = GetPowerfulPlayer();
+//
+//	// プレイヤーの足元の座標をマップチップのインデックスに変換
+//	int playerX = (int)(player->pos.x / MAP_CHIP_WIDTH);
+//	int playerY = (int)((player->pos.y + POWERFUL_PLAYER_HEIGHT) / MAP_CHIP_HEIGHT);
+//	// プレイヤーの左上にあるマップチップインデックス
+//	int left = playerX - CHECK_ROUND_NUM;
+//	int top = playerY - CHECK_ROUND_NUM;
+//	// プレイヤーの右下にあるマップチップインデックス
+//	int right = playerX + CHECK_ROUND_NUM;
+//	int bottom = playerY + CHECK_ROUND_NUM;
+//
+//	// 左上から3マスずつチェックしていく
+//	for (int y = top; y <= bottom; y++)
+//	{
+//		// マップチップからはみ出したら処理しなくていい
+//		if (y < 0 || y >= MAP_CHIP_Y_NUM) continue;
+//
+//		for (int x = left; x <= right; x++)
+//		{
+//			// マップチップからはみ出したら処理しなくていい
+//			if (x < 0 || x >= MAP_CHIP_X_NUM) continue;
+//
+//			// マップチップ番号を取得
+//			MapChipData mapChipData = GetMapChipData(x, y);
+//			switch (mapChipData.mapChip)
+//			{
+//			case NORMAL_BLOCK:
+//				PowerfulPlayerHitNormalBlock(mapChipData);
+//				break;
+//			}
+//		}
+//	}
+//}
+
+void MoveWithCollision(Body* body)
 {
-	GimmickPlayerData* player = GetGimmickPlayer();
-
-	// プレイヤーの足元の座標をマップチップのインデックスに変換
-	int playerX = (int)(player->pos.x / MAP_CHIP_WIDTH);
-	int playerY = (int)((player->pos.y + GIMMICK_PLAYER_HEIGHT) / MAP_CHIP_HEIGHT);
-	// プレイヤーの左上にあるマップチップインデックス
-	int left = playerX - CHECK_ROUND_NUM;
-	int top = playerY - CHECK_ROUND_NUM;
-	// プレイヤーの右下にあるマップチップインデックス
-	int right = playerX + CHECK_ROUND_NUM;
-	int bottom = playerY + CHECK_ROUND_NUM;
-
-	// まずはX軸でチェックする
-
-	// 左上から3マスずつチェックしていく
-	for (int y = top; y <= bottom; y++)
+	body->pos.x += body->move.x;
+	
+	for (int y = 0; y < MAP_CHIP_Y_NUM; y++)
 	{
-		// マップチップからはみ出したら処理しなくていい
-		if (y < 0 || y >= MAP_CHIP_Y_NUM) continue;
-
-		for (int x = left; x <= right; x++)
+		for (int x = 0; x < MAP_CHIP_X_NUM; x++)
 		{
-			// マップチップからはみ出したら処理しなくていい
-			if (x < 0 || x >= MAP_CHIP_X_NUM) continue;
-
-			// マップチップ番号を取得
 			MapChipData mapChipData = GetMapChipData(x, y);
-			switch (mapChipData.mapChip)
+			if (mapChipData.mapChip == 0)continue;
+
+			BlockData* block = mapChipData.data;
+			if (CheckSquareSquare(body->pos.x, body->pos.y, body->width, body->height,
+				block->pos.x, block->pos.y, block->width, block->height))
 			{
-			case NORMAL_BLOCK:
-				GimmickPlayerHitNormalBlock(mapChipData);
-				break;
+				if (body->move.x > 0.0f)
+				{
+					body->pos.x -= ((body->pos.x + body->width) - block->pos.x);
+				}
+
+				else if (body->move.x < 0.0f)
+				{
+					body->pos.x += ((block->pos.x + body->width) - body->pos.x);
+				}
+
+				body->move.x = 0.0f;
 			}
 		}
 	}
 
-	// X軸チェック後にY軸チェックする
+	body->pos.y += body->move.y;
 
-	// 左上から3マスずつチェックしていく
-	for (int y = top; y <= bottom; y++)
+	for (int y = 0; y < MAP_CHIP_Y_NUM; y++)
 	{
-		// マップチップからはみ出したら処理しなくていい
-		if (y < 0 || y >= MAP_CHIP_Y_NUM) continue;
-
-		for (int x = left; x <= right; x++)
+		for (int x = 0; x < MAP_CHIP_X_NUM; x++)
 		{
-			// マップチップからはみ出したら処理しなくていい
-			if (x < 0 || x >= MAP_CHIP_X_NUM) continue;
-
-			// マップチップ番号を取得
 			MapChipData mapChipData = GetMapChipData(x, y);
-			switch (mapChipData.mapChip)
+			if (mapChipData.mapChip == 0)continue;
+
+			BlockData* block = mapChipData.data;
+			if (CheckSquareSquare(body->pos.x, body->pos.y, body->width, body->height,
+				block->pos.x, block->pos.y, block->width, block->height))
 			{
-			case NORMAL_BLOCK:
-				GimmickPlayerHitNormalBlock(mapChipData);
-				break;
-			}
-		}
-	}
-}
+				if (body->move.y > 0.0f)
+				{
+					body->pos.y -= ((body->pos.y + body->height) - block->pos.y);
+				}
 
-void ChceckMapPowerfulPlayerCollision()
-{
-	PowerfulPlayerData* player = GetPowerfulPlayer();
+				else if (body->move.y < 0.0f)
+				{
+					body->pos.y += ((block->pos.y + body->height) - body->pos.y);
+				}
 
-	// プレイヤーの足元の座標をマップチップのインデックスに変換
-	int playerX = (int)(player->pos.x / MAP_CHIP_WIDTH);
-	int playerY = (int)((player->pos.y + POWERFUL_PLAYER_HEIGHT) / MAP_CHIP_HEIGHT);
-	// プレイヤーの左上にあるマップチップインデックス
-	int left = playerX - CHECK_ROUND_NUM;
-	int top = playerY - CHECK_ROUND_NUM;
-	// プレイヤーの右下にあるマップチップインデックス
-	int right = playerX + CHECK_ROUND_NUM;
-	int bottom = playerY + CHECK_ROUND_NUM;
-
-	// まずはX軸でチェックする
-
-	// 左上から3マスずつチェックしていく
-	for (int y = top; y <= bottom; y++)
-	{
-		// マップチップからはみ出したら処理しなくていい
-		if (y < 0 || y >= MAP_CHIP_Y_NUM) continue;
-
-		for (int x = left; x <= right; x++)
-		{
-			// マップチップからはみ出したら処理しなくていい
-			if (x < 0 || x >= MAP_CHIP_X_NUM) continue;
-
-			// マップチップ番号を取得
-			MapChipData mapChipData = GetMapChipData(x, y);
-			switch (mapChipData.mapChip)
-			{
-			case NORMAL_BLOCK:
-				PowerfulPlayerHitNormalBlock(mapChipData);
-				break;
-			}
-		}
-	}
-
-	// X軸チェック後にY軸チェックする
-
-	// 左上から3マスずつチェックしていく
-	for (int y = top; y <= bottom; y++)
-	{
-		// マップチップからはみ出したら処理しなくていい
-		if (y < 0 || y >= MAP_CHIP_Y_NUM) continue;
-
-		for (int x = left; x <= right; x++)
-		{
-			// マップチップからはみ出したら処理しなくていい
-			if (x < 0 || x >= MAP_CHIP_X_NUM) continue;
-
-			// マップチップ番号を取得
-			MapChipData mapChipData = GetMapChipData(x, y);
-			switch (mapChipData.mapChip)
-			{
-			case NORMAL_BLOCK:
-				PowerfulPlayerHitNormalBlock(mapChipData);
-				break;
+				body->move.y = 0;
 			}
 		}
 	}
