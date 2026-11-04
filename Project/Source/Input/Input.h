@@ -24,6 +24,11 @@ void DrawInput();
 void FinInput();
 
 //キー入力判定
-bool IsInputKey(InputKey);
+bool IsPowerfulInputKey(InputKey);
 //キー押した瞬間判定
-bool IsTriggerKey(InputKey);
+bool IsTriggerPowerfulInputKey(InputKey);
+
+//キー入力判定
+bool IsGimmickInputKey(InputKey);
+//キー押した瞬間判定
+bool IsTriggerGimmickInputKey(InputKey);

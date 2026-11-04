@@ -4,6 +4,7 @@
 #include "../Input/Input.h"
 #include "../Map/MapChip.h"
 #include "../Map/MapManager.h"
+#include "../Camera/Camera.h"
 
 struct  PlayerAnimationParam
 {
@@ -101,29 +102,25 @@ void StepPowerfulPlayer()
 
 	g_PlayerData.body.move.y += POWERFUL_PLAYER_GRAVITY;
 
-	if (IsInputKey(KEY_I))
+	if (IsPowerfulInputKey(KEY_W))
 	{
 		g_PlayerData.body.move.y -= POWERFUL_PLAYER_JUMP_POWER;
 	}
-	if (IsInputKey(KEY_J))
+	if (IsPowerfulInputKey(KEY_A))
 	{
 		g_PlayerData.body.move.x = -POWERFUL_PLAYER_MOVESPEED;
 		g_PlayerData.isTurn = true;
 	}
-	if (IsInputKey(KEY_K))
+	if (IsPowerfulInputKey(KEY_S))
 	{
 
 	}
-	if (IsInputKey(KEY_L))
+	if (IsPowerfulInputKey(KEY_D))
 	{
 		g_PlayerData.body.move.x = POWERFUL_PLAYER_MOVESPEED;
 		g_PlayerData.isTurn = false;
 	}
-	if (IsInputKey(KEY_H))
-	{
-
-	}
-	if (IsInputKey(KEY_U))
+	if (IsPowerfulInputKey(KEY_F))
 	{
 
 	}
@@ -153,6 +150,12 @@ void DrawPowerfulPlayer()
 
 	int playerX = (int)(g_PlayerData.body.pos.x + 0.5f);
 	int	playerY = (int)(g_PlayerData.body.pos.y + 0.5f);
+
+	PowerfulPlayerData temp = g_PlayerData;
+	CameraData camera = GetCamera();
+
+	temp.body.pos.y = g_PlayerData.body.pos.y - camera.pos.y;
+
 	// アニメーション描画でプレイヤーを描画する
 	PowerfulPlayerAnimationType animType = g_PlayerData.playAnim;
 	AnimationData* animData = g_PlayerData.animation[animType];
@@ -160,7 +163,7 @@ void DrawPowerfulPlayer()
 
 	// 当たり判定描画
 	float x, y, w, h;
-	PowerfulPlayerCalcBoxCollision(g_PlayerData, x, y, w, h);
+	PowerfulPlayerCalcBoxCollision(temp, x, y, w, h);
 	DrawBox((int)x, (int)y, (int)(x + w), (int)(y + h), GetColor(255, 255, 255), false);
 }
 

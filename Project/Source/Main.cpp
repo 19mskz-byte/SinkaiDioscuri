@@ -1,6 +1,7 @@
 ﻿#include"Dxlib.h"
 #include "Scene/SceneManager.h"
 #include "GameSetting/GameSetting.h"
+#include "Input/Input.h"
 
 //プログラムはWinMainから始まります
 int WINAPI WinMain(_In_ HINSTANCE hInstanse, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
@@ -25,14 +26,21 @@ int WINAPI WinMain(_In_ HINSTANCE hInstanse, _In_opt_ HINSTANCE hPrevInstance, _
 	// 描画先を裏画面にする
 	SetDrawScreen(DX_SCREEN_BACK);
 
+	InitInput();
 
 	//ゲームのメインループ
 	while(ProcessMessage() >= 0)
 	{
+		Sleep(1);	// ちょっと休憩
+
 		//画面をクリア
 		ClearDrawScreen();
 
+		UpdateInput();
+
 		SceneManagerUpdate();
+
+		DrawInput();	
 
 		//エスケープキーで終了
 		if (CheckHitKey(KEY_INPUT_ESCAPE))break;
@@ -40,6 +48,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstanse, _In_opt_ HINSTANCE hPrevInstance, _
 		//画面をフリップ
 		ScreenFlip();
 	}
+
+	FinInput();
 
 	//DXライブラリ仕様の終了処理
 	DxLib_End();

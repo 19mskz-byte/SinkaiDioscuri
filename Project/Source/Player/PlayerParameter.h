@@ -30,20 +30,20 @@ enum GimmickPlayerAnimationType
 // プレイヤーデータ
 struct PowerfulPlayerData
 {
-	bool active;								// 生存フラグ
-	bool isTurn;								// 左を向いているか
+	bool active;										// 生存フラグ
+	bool isTurn;										// 左を向いているか
 	AnimationData* animation[POWERFUL_PLAYER_ANIM_MAX];	// アニメーション
 	PowerfulPlayerAnimationType playAnim;				// 再生中のアニメーション
-	Body body;			    // 矩形当たり判定
+	Body body;											// 矩形当たり判定
 	BodyCollision bodycollision;			    
 };
 
 struct GimmickPlayerData
 {
-	bool active;								// 生存フラグ
-	bool isTurn;								// 左を向いているか
+	bool active;										// 生存フラグ
+	bool isTurn;										// 左を向いているか
 	AnimationData* animation[GIMMICK_PLAYER_ANIM_MAX];	// アニメーション
 	GimmickPlayerAnimationType playAnim;				// 再生中のアニメーション
-	Body body;			    // 矩形当たり判定
+	Body body;											// 矩形当たり判定
 	BodyCollision bodycollision;
 };

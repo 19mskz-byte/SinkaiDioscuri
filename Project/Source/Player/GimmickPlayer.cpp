@@ -102,29 +102,29 @@ void StepGimmickPlayer()
 
 	g_PlayerData.body.move.y += GIMMICK_PLAYER_GRAVITY;
 
-	if (IsInputKey(KEY_I))
+	if (IsGimmickInputKey(KEY_I))
 	{
 		g_PlayerData.body.move.y = GIMMICK_PLAYER_JUMP_POWER;
 	}
-	if (IsInputKey(KEY_J))
+	if (IsGimmickInputKey(KEY_J))
 	{
 		g_PlayerData.body.move.x = -GIMMICK_PLAYER_MOVESPEED;
 		g_PlayerData.isTurn = true;
 	}
-	if (IsInputKey(KEY_K))
+	if (IsGimmickInputKey(KEY_K))
 	{
 
 	}
-	if (IsInputKey(KEY_L))
+	if (IsGimmickInputKey(KEY_L))
 	{
 		g_PlayerData.body.move.x = GIMMICK_PLAYER_MOVESPEED;
 		g_PlayerData.isTurn = false;
 	}
-	if (IsInputKey(KEY_H))
+	if (IsGimmickInputKey(KEY_H))
 	{
 
 	}
-	if (IsInputKey(KEY_U))
+	if (IsGimmickInputKey(KEY_U))
 	{
 
 	}
