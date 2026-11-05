@@ -121,14 +121,16 @@ void MoveWithCollision(Body* body,BodyCollision* bodycollision)
 			if (mapChipData.mapChip == 0)continue;
 
 			BlockData* block = mapChipData.data;
-			if (CheckSquareSquare(body->pos.x, body->pos.y, body->width, body->height,
+			if (CheckSquareSquare(body->pos.x+bodycollision->pos.x, body->pos.y+bodycollision->pos.y, bodycollision->width, bodycollision->height,
 				block->pos.x, block->pos.y, block->width, block->height))
 			{
+				//右に押し出す
 				if (body->move.x > 0.0f)
 				{
-					body->pos.x = block->pos.x - body->width;
+					body->pos.x = block->pos.x - bodycollision->width-bodycollision->pos.x;
 				}
 
+				//左に押し出す
 				else if (body->move.x < 0.0f)
 				{
 					body->pos.x = block->pos.x + block->width;
@@ -147,14 +149,16 @@ void MoveWithCollision(Body* body,BodyCollision* bodycollision)
 			if (mapChipData.mapChip == 0)continue;
 
 			BlockData* block = mapChipData.data;
-			if (CheckSquareSquare(body->pos.x, body->pos.y, body->width, body->height,
+			if (CheckSquareSquare(body->pos.x+bodycollision->pos.x, body->pos.y+bodycollision->pos.y, bodycollision->width, bodycollision->height,
 				block->pos.x, block->pos.y, block->width, block->height))
 			{
+				//下に押し出す
 				if (body->move.y > 0.0f)
 				{
 					body->pos.y = block->pos.y - body->height;
 				}
 
+				//上に押し出す
 				else if (body->pos.y < 0.0f)
 				{
 					body->move.y = block->pos.y + block->height;
@@ -164,4 +168,4 @@ void MoveWithCollision(Body* body,BodyCollision* bodycollision)
 			}
 		}
 	}
-}
+} 

@@ -81,7 +81,7 @@ void StartGimmickPlayer()
 	g_PlayerData.body.width = GIMMICK_PLAYER_WIDTH;
 	g_PlayerData.body.height = GIMMICK_PLAYER_HEIGHT;
 
-	g_PlayerData.bodycollision.pos.x = GIMMICK_PLAYER_BOX_COLLISION_OFFSET_X;
+	g_PlayerData.bodycollision.pos.x = (GIMMICK_PLAYER_BOX_COLLISION_WIDTH/2) + GIMMICK_PLAYER_BOX_COLLISION_OFFSET_X;
 	g_PlayerData.bodycollision.pos.y = GIMMICK_PLAYER_BOX_COLLISION_OFFSET_Y;
 	g_PlayerData.bodycollision.width = GIMMICK_PLAYER_BOX_COLLISION_WIDTH;
 	g_PlayerData.bodycollision.height = GIMMICK_PLAYER_BOX_COLLISION_HEIGHT;
