@@ -39,7 +39,7 @@ const PlayerAnimationParam POWERFUL_PLAYER_ANIM_PARAM[POWERFUL_PLAYER_ANIM_MAX] 
 
 // 矩形判定の位置補正
 //判定サイズ
-#define POWERFUL_PLAYER_BOX_COLLISION_OFFSET_X (40)
+#define POWERFUL_PLAYER_BOX_COLLISION_OFFSET_X (24)
 #define POWERFUL_PLAYER_BOX_COLLISION_OFFSET_Y (0)
 #define POWERFUL_PLAYER_BOX_COLLISION_WIDTH (40.0f)
 #define POWERFUL_PLAYER_BOX_COLLISION_HEIGHT (80.0f)
@@ -100,7 +100,9 @@ void StepPowerfulPlayer()
 
 	g_PlayerData.body.move.x = 0.0f;
 
-	g_PlayerData.body.move.y += POWERFUL_PLAYER_GRAVITY;
+	g_PlayerData.body.move.y = 0.0f;
+
+	/*g_PlayerData.body.move.y += POWERFUL_PLAYER_GRAVITY;*/
 
 	if (IsPowerfulInputKey(KEY_W))
 	{
@@ -113,7 +115,7 @@ void StepPowerfulPlayer()
 	}
 	if (IsPowerfulInputKey(KEY_S))
 	{
-
+		g_PlayerData.body.move.y = POWERFUL_PLAYER_JUMP_POWER;
 	}
 	if (IsPowerfulInputKey(KEY_D))
 	{
@@ -139,7 +141,7 @@ void UpdatePowerfulPlayer()
 	g_PlayerData.body.pos.y += g_PlayerData.body.move.y;
 
 	// 当たり判定付きで移動
-	MoveWithCollision(&g_PlayerData.body);
+	MoveWithCollision(&g_PlayerData.body,&g_PlayerData.bodycollision);
 
 	UpdatePowerfulPlayerAnimation();
 }
@@ -240,9 +242,7 @@ void UpdatePowerfulPlayerAnimation()
 
 void PowerfulPlayerCalcBoxCollision(PowerfulPlayerData player, float& x, float& y, float& w, float& h)
 {
-	x = player.isTurn ?
-		player.body.pos.x + POWERFUL_PLAYER_WIDTH - player.bodycollision.pos.x - player.bodycollision.width :
-		player.body.pos.x + player.bodycollision.pos.x;
+	x = player.body.pos.x + player.bodycollision.pos.x;
 	y = player.body.pos.y + player.bodycollision.pos.y;
 	w = player.bodycollision.width;
 	h = player.bodycollision.height;

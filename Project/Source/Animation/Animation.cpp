@@ -74,7 +74,7 @@ void UpdateAnimation(AnimationData* animData)
 			return;
 		}
 	}
-
+	
 	animData->timer--;
 }
 
@@ -90,6 +90,8 @@ void DrawAnimation(AnimationData* animData, float posX, float posY, bool isTurnX
 	// コマの切り取り位置計算（横１行の画像の想定）
 	int frameX = animData->frameWidth * animData->nowFrame;
 
+	int animposY = posY - 500;
+
 	// 画像から表示するコマの部分だけ描画
-	DrawRectGraph((int)posX, (int)posY, frameX, 0, animData->frameWidth, animData->frameHeight, animData->handle, TRUE, isTurnX, isTurnY);
+	DrawRectGraph((int)posX, animposY, frameX, 0, animData->frameWidth, animData->frameHeight, animData->handle, TRUE, isTurnX, isTurnY);
 }

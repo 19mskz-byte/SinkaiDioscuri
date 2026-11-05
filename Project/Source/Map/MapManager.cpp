@@ -107,7 +107,7 @@ void FinMap()
 //	}
 //}
 
-void MoveWithCollision(Body* body)
+void MoveWithCollision(Body* body,BodyCollision* bodycollision)
 {
 	Body tempbody = *body;
 	tempbody.pos.x -= tempbody.move.x;
@@ -121,17 +121,17 @@ void MoveWithCollision(Body* body)
 			if (mapChipData.mapChip == 0)continue;
 
 			BlockData* block = mapChipData.data;
-			if (CheckSquareSquare(body->pos.x, tempbody.pos.y, tempbody.width, tempbody.height,
+			if (CheckSquareSquare(body->pos.x, body->pos.y, body->width, body->height,
 				block->pos.x, block->pos.y, block->width, block->height))
 			{
-				if (tempbody.move.x > 0.0f)
+				if (body->move.x > 0.0f)
 				{
-					body->pos.x -= ((tempbody.pos.x + tempbody.width) - block->pos.x);
+					body->pos.x = block->pos.x - body->width;
 				}
 
-				else if (tempbody.move.x < 0.0f)
+				else if (body->move.x < 0.0f)
 				{
-					body->pos.x += ((block->pos.x + block->width) - tempbody.pos.x);
+					body->pos.x = block->pos.x + block->width;
 				}
 
 				body->move.x = 0.0f;
@@ -152,12 +152,12 @@ void MoveWithCollision(Body* body)
 			{
 				if (body->move.y > 0.0f)
 				{
-					body->pos.y -= ((body->pos.y + body->height) - block->pos.y);
+					body->pos.y = block->pos.y - body->height;
 				}
 
-				else if (body->move.y < 0.0f)
+				else if (body->pos.y < 0.0f)
 				{
-					body->pos.y += ((block->pos.y + block->height) - body->pos.y);
+					body->move.y = block->pos.y + block->height;
 				}
 
 				body->move.y = 0;

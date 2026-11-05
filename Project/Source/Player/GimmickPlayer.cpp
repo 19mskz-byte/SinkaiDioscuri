@@ -26,7 +26,7 @@ const PlayerAnimationParam GIMMICK_PLAYER_ANIM_PARAM[GIMMICK_PLAYER_ANIM_MAX] =
 //プレイヤー設定
 #define GIMMICK_PLAYER_DEFAULT_POS_X (300.0f)
 #define GIMMICK_PLAYER_DEFAULT_POS_Y (600.0f)
-#define GIMMICK_PLAYER_MOVESPEED (2.0f)
+#define GIMMICK_PLAYER_MOVESPEED (14.0f)
 
 //ジャンプ力
 #define GIMMICK_PLAYER_JUMP_POWER (12.0f)
@@ -79,7 +79,7 @@ void StartGimmickPlayer()
 	g_PlayerData.body.pos.x = GIMMICK_PLAYER_DEFAULT_POS_X;
 	g_PlayerData.body.pos.y = GIMMICK_PLAYER_DEFAULT_POS_Y;
 	g_PlayerData.body.width = GIMMICK_PLAYER_WIDTH;
-	g_PlayerData.body.height =GIMMICK_PLAYER_HEIGHT;
+	g_PlayerData.body.height = GIMMICK_PLAYER_HEIGHT;
 
 	g_PlayerData.bodycollision.pos.x = GIMMICK_PLAYER_BOX_COLLISION_OFFSET_X;
 	g_PlayerData.bodycollision.pos.y = GIMMICK_PLAYER_BOX_COLLISION_OFFSET_Y;
@@ -145,7 +145,7 @@ void UpdateGimmickPlayer()
 	g_PlayerData.body.pos.y += g_PlayerData.body.move.y;
 
 	// 当たり判定付きで移動
-	MoveWithCollision(&g_PlayerData.body);
+	MoveWithCollision(&g_PlayerData.body, &g_PlayerData.bodycollision);
 
 	DrawFormatString(0, 13, GetColor(255, 255, 255), "プレイヤーの座標＝[%f, %f]", g_PlayerData.body.pos.x, g_PlayerData.body.pos.y);
 
@@ -163,12 +163,12 @@ void DrawGimmickPlayer()
 	CameraData camera = GetCamera();
 
 	temp.body.pos.y = g_PlayerData.body.pos.y - camera.pos.y;
-	
+
 	// アニメーション描画でプレイヤーを描画する
 	GimmickPlayerAnimationType animType = g_PlayerData.playAnim;
 	AnimationData* animData = g_PlayerData.animation[animType];
 	DrawAnimation(animData, playerX, playerY, g_PlayerData.isTurn);
-	
+
 	// 当たり判定描画
 	float x, y, w, h;
 	GimmickPlayerCalcBoxCollision(temp, x, y, w, h);
@@ -246,10 +246,8 @@ void UpdateGimmickPlayerAnimation()
 
 void GimmickPlayerCalcBoxCollision(GimmickPlayerData player, float& x, float& y, float& w, float& h)
 {
-	x = player.isTurn ?
-		player.body.pos.x + GIMMICK_PLAYER_WIDTH - player.bodycollision.pos.x - player.bodycollision.width :
-		player.body.pos.x + player.bodycollision.pos.x;
-	y = player.body.pos.y+player.bodycollision.pos.y;
+	x = player.body.pos.x + player.bodycollision.pos.x;
+	y = player.body.pos.y + player.bodycollision.pos.y;
 	w = player.bodycollision.width;
 	h = player.bodycollision.height;
 }
