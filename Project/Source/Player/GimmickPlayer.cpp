@@ -26,7 +26,7 @@ const PlayerAnimationParam GIMMICK_PLAYER_ANIM_PARAM[GIMMICK_PLAYER_ANIM_MAX] =
 //プレイヤー設定
 #define GIMMICK_PLAYER_DEFAULT_POS_X (300.0f)
 #define GIMMICK_PLAYER_DEFAULT_POS_Y (600.0f)
-#define GIMMICK_PLAYER_MOVESPEED (4.0f)
+#define GIMMICK_PLAYER_MOVESPEED (2.0f)
 
 //ジャンプ力
 #define GIMMICK_PLAYER_JUMP_POWER (12.0f)
@@ -39,8 +39,8 @@ const PlayerAnimationParam GIMMICK_PLAYER_ANIM_PARAM[GIMMICK_PLAYER_ANIM_MAX] =
 
 //判定サイズ
 // 矩形判定の位置補正
-#define GIMMICK_PLAYER_BOX_COLLISION_OFFSET_X (24)
-#define GIMMICK_PLAYER_BOX_COLLISION_OFFSET_Y (20)
+#define GIMMICK_PLAYER_BOX_COLLISION_OFFSET_X (0)
+#define GIMMICK_PLAYER_BOX_COLLISION_OFFSET_Y (0)
 #define GIMMICK_PLAYER_BOX_COLLISION_WIDTH (40.0f)
 #define GIMMICK_PLAYER_BOX_COLLISION_HEIGHT (80.0f)
 
@@ -100,11 +100,13 @@ void StepGimmickPlayer()
 
 	g_PlayerData.body.move.x = 0.0f;
 
-	g_PlayerData.body.move.y += GIMMICK_PLAYER_GRAVITY;
+	g_PlayerData.body.move.y = 0.0f;
+
+	/*g_PlayerData.body.move.y += GIMMICK_PLAYER_GRAVITY;*/
 
 	if (IsGimmickInputKey(KEY_I))
 	{
-		g_PlayerData.body.move.y = GIMMICK_PLAYER_JUMP_POWER;
+		g_PlayerData.body.move.y = -GIMMICK_PLAYER_JUMP_POWER;
 	}
 	if (IsGimmickInputKey(KEY_J))
 	{
@@ -113,7 +115,7 @@ void StepGimmickPlayer()
 	}
 	if (IsGimmickInputKey(KEY_K))
 	{
-
+		g_PlayerData.body.move.y = GIMMICK_PLAYER_JUMP_POWER;
 	}
 	if (IsGimmickInputKey(KEY_L))
 	{
