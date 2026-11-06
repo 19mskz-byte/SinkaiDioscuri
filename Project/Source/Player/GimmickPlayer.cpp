@@ -16,20 +16,19 @@ struct  PlayerAnimationParam
 
 const PlayerAnimationParam GIMMICK_PLAYER_ANIM_PARAM[GIMMICK_PLAYER_ANIM_MAX] =
 {
+	20,7,80,80,
 	8,7,80,80,
-	5,8,80,80,
-	8,2,80,80,
-	8,2,80,80,
-	8,1,80,80,
+	8,7,80,80,
+	8,7,80,80,
 };
 
 //プレイヤー設定
 #define GIMMICK_PLAYER_DEFAULT_POS_X (300.0f)
-#define GIMMICK_PLAYER_DEFAULT_POS_Y (600.0f)
-#define GIMMICK_PLAYER_MOVESPEED (14.0f)
+#define GIMMICK_PLAYER_DEFAULT_POS_Y (1255.0f)
+#define GIMMICK_PLAYER_MOVESPEED (10.0f)
 
 //ジャンプ力
-#define GIMMICK_PLAYER_JUMP_POWER (12.0f)
+#define GIMMICK_PLAYER_JUMP_POWER (8.0f)
 
 //重力
 #define GIMMICK_PLAYER_GRAVITY (0.4f)
@@ -71,6 +70,9 @@ void InitGimmickPlayer()
 void LoadGimmickPlayer()
 {
 	g_PlayerData.animation[GIMMICK_PLAYER_ANIM_IDLE]->handle = LoadGraph("Data/Player/GimmickPlayerIdle.png");
+	g_PlayerData.animation[GIMMICK_PLAYER_ANIM_RUN]->handle = LoadGraph("Data/Player/GimmickPlayerRun.png");
+	g_PlayerData.animation[GIMMICK_PLAYER_ANIM_JUMP]->handle = LoadGraph("Data/Player/GimmickPlayerJump.png");
+	g_PlayerData.animation[GIMMICK_PLAYER_ANIM_FALL]->handle = LoadGraph("Data/Player/GimmickPlayerFall.png");
 }
 
 void StartGimmickPlayer()
@@ -100,13 +102,14 @@ void StepGimmickPlayer()
 
 	g_PlayerData.body.move.x = 0.0f;
 
-	g_PlayerData.body.move.y = 0.0f;
-
-	/*g_PlayerData.body.move.y += GIMMICK_PLAYER_GRAVITY;*/
+	g_PlayerData.body.move.y += GIMMICK_PLAYER_GRAVITY;
 
 	if (IsGimmickInputKey(KEY_I))
 	{
-		g_PlayerData.body.move.y = -GIMMICK_PLAYER_JUMP_POWER;
+		if (g_PlayerData.body.feetState == PLAYER_FEET_STATE_BLOCK)
+		{
+			g_PlayerData.body.move.y = -GIMMICK_PLAYER_JUMP_POWER;
+		}
 	}
 	if (IsGimmickInputKey(KEY_J))
 	{
@@ -115,7 +118,7 @@ void StepGimmickPlayer()
 	}
 	if (IsGimmickInputKey(KEY_K))
 	{
-		g_PlayerData.body.move.y = GIMMICK_PLAYER_JUMP_POWER;
+	/*	g_PlayerData.body.move.y = GIMMICK_PLAYER_JUMP_POWER;*/
 	}
 	if (IsGimmickInputKey(KEY_L))
 	{
@@ -209,10 +212,10 @@ void StartGimmickPlayerAnimation(GimmickPlayerAnimationType anim)
 void UpdateGimmickPlayerAnimation()
 {
 	// 地上にいるか
-	if (!g_PlayerData.body.isAir)
+	if (g_PlayerData.body.feetState == PLAYER_FEET_STATE_BLOCK)
 	{
 		// 横に移動していれば走っている
-		if (g_PlayerData.body.move.x < 0.0f || g_PlayerData.body.move.y > 0.0f)
+		if (g_PlayerData.body.move.x >= 0.05f || g_PlayerData.body.move.x <= -0.05f)
 		{
 			// 走るアニメーション
 			StartGimmickPlayerAnimation(GIMMICK_PLAYER_ANIM_RUN);
@@ -224,7 +227,7 @@ void UpdateGimmickPlayerAnimation()
 		}
 	}
 	// 空中にいる
-	else
+	else if (g_PlayerData.body.feetState == PLAYER_FEET_STATE_AIR)
 	{
 		// 上昇していればジャンプアニメーション
 		if (g_PlayerData.body.move.y < 0.0f)

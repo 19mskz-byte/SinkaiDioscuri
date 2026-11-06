@@ -16,20 +16,17 @@ struct  PlayerAnimationParam
 
 const PlayerAnimationParam POWERFUL_PLAYER_ANIM_PARAM[POWERFUL_PLAYER_ANIM_MAX] =
 {
+	20,7,80,80,
 	8,7,80,80,
-	5,8,80,80,
-	8,2,80,80,
-	8,2,80,80,
-	8,1,80,80,
+	8,7,80,80,
+	8,7,80,80,
 };
 
 //プレイヤー設定
 #define POWERFUL_PLAYER_DEFAULT_POS_X (100.0f)
-#define POWERFUL_PLAYER_DEFAULT_POS_Y (600.0f)
-#define POWERFUL_PLAYER_MOVESPEED (2.0f)
-
-//ジャンプ力
-#define POWERFUL_PLAYER_JUMP_POWER (12.0f)
+#define POWERFUL_PLAYER_DEFAULT_POS_Y (1255.0f)
+#define POWERFUL_PLAYER_MOVESPEED (10.0f)
+#define POWERFUL_PLAYER_JUMP_POWER (8.0f)
 
 //重力
 #define POWERFUL_PLAYER_GRAVITY (0.4f)
@@ -71,6 +68,9 @@ void InitPowerfulPlayer()
 void LoadPowerfulPlayer()
 {
 	g_PlayerData.animation[POWERFUL_PLAYER_ANIM_IDLE]->handle = LoadGraph("Data/Player/PowerfulPlayerIdle.png");
+	g_PlayerData.animation[POWERFUL_PLAYER_ANIM_RUN]->handle = LoadGraph("Data/Player/PowerfulPlayerRun.png");
+	g_PlayerData.animation[POWERFUL_PLAYER_ANIM_JUMP]->handle = LoadGraph("Data/Player/PowerfulPlayerJump.png");
+	g_PlayerData.animation[POWERFUL_PLAYER_ANIM_FALL]->handle = LoadGraph("Data/Player/PowerfulPlayerFall.png");
 }
 
 void StartPowerfulPlayer()
@@ -100,13 +100,16 @@ void StepPowerfulPlayer()
 
 	g_PlayerData.body.move.x = 0.0f;
 
-	g_PlayerData.body.move.y = 0.0f;
+	/*g_PlayerData.body.move.y = 0.0f;*/
 
-	/*g_PlayerData.body.move.y += POWERFUL_PLAYER_GRAVITY;*/
+	g_PlayerData.body.move.y += POWERFUL_PLAYER_GRAVITY;
 
 	if (IsPowerfulInputKey(KEY_W))
 	{
-		g_PlayerData.body.move.y = -POWERFUL_PLAYER_JUMP_POWER;
+		if (g_PlayerData.body.feetState == PLAYER_FEET_STATE_BLOCK)
+		{
+			g_PlayerData.body.move.y = -POWERFUL_PLAYER_JUMP_POWER;
+		}
 	}
 	if (IsPowerfulInputKey(KEY_A))
 	{
@@ -115,7 +118,7 @@ void StepPowerfulPlayer()
 	}
 	if (IsPowerfulInputKey(KEY_S))
 	{
-		g_PlayerData.body.move.y = POWERFUL_PLAYER_JUMP_POWER;
+		/*g_PlayerData.body.move.y = POWERFUL_PLAYER_JUMP_POWER;*/
 	}
 	if (IsPowerfulInputKey(KEY_D))
 	{
@@ -203,10 +206,10 @@ void StartPowerfulPlayerAnimation(PowerfulPlayerAnimationType anim)
 void UpdatePowerfulPlayerAnimation()
 {
 	// 地上にいるか
-	if (!g_PlayerData.body.isAir)
+	if (g_PlayerData.body.feetState == PLAYER_FEET_STATE_BLOCK)
 	{
 		// 横に移動していれば走っている
-		if (g_PlayerData.body.move.x < 0.0f || g_PlayerData.body.move.y > 0.0f)
+		if (g_PlayerData.body.move.x >= 0.05f || g_PlayerData.body.move.x <= -0.05f)
 		{
 			// 走るアニメーション
 			StartPowerfulPlayerAnimation(POWERFUL_PLAYER_ANIM_RUN);
@@ -218,7 +221,7 @@ void UpdatePowerfulPlayerAnimation()
 		}
 	}
 	// 空中にいる
-	else
+	else if (g_PlayerData.body.feetState == PLAYER_FEET_STATE_AIR)
 	{
 		// 上昇していればジャンプアニメーション
 		if (g_PlayerData.body.move.y < 0.0f)

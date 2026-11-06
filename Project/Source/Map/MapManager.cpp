@@ -109,9 +109,9 @@ void FinMap()
 
 void MoveWithCollision(Body* body,BodyCollision* bodycollision)
 {
-	Body tempbody = *body;
-	tempbody.pos.x -= tempbody.move.x;
-	tempbody.pos.y -= tempbody.move.y;
+	float prevPosY = body->pos.y - body->move.y;
+
+	body->feetState = PLAYER_FEET_STATE_AIR;
 
 	for (int y = 0; y < MAP_CHIP_Y_NUM; y++)
 	{
@@ -121,19 +121,19 @@ void MoveWithCollision(Body* body,BodyCollision* bodycollision)
 			if (mapChipData.mapChip == 0)continue;
 
 			BlockData* block = mapChipData.data;
-			if (CheckSquareSquare(body->pos.x+bodycollision->pos.x, body->pos.y+bodycollision->pos.y, bodycollision->width, bodycollision->height,
+			if (CheckSquareSquare(body->pos.x+bodycollision->pos.x, prevPosY+bodycollision->pos.y, bodycollision->width, bodycollision->height,
 				block->pos.x, block->pos.y, block->width, block->height))
 			{
-				//右に押し出す
+				//右からあたる
 				if (body->move.x > 0.0f)
 				{
 					body->pos.x = block->pos.x - bodycollision->width-bodycollision->pos.x;
 				}
 
-				//左に押し出す
+				//左からあたる
 				else if (body->move.x < 0.0f)
 				{
-					body->pos.x = block->pos.x + block->width;
+					body->pos.x = block->pos.x + block->width - bodycollision->pos.x;
 				}
 
 				body->move.x = 0.0f;
@@ -149,19 +149,20 @@ void MoveWithCollision(Body* body,BodyCollision* bodycollision)
 			if (mapChipData.mapChip == 0)continue;
 
 			BlockData* block = mapChipData.data;
-			if (CheckSquareSquare(body->pos.x+bodycollision->pos.x, body->pos.y+bodycollision->pos.y, bodycollision->width, bodycollision->height,
+			if (CheckSquareSquare(body->pos.x + bodycollision->pos.x, body->pos.y + bodycollision->pos.y, bodycollision->width, bodycollision->height,
 				block->pos.x, block->pos.y, block->width, block->height))
 			{
-				//下に押し出す
+				//上からあたる
 				if (body->move.y > 0.0f)
 				{
-					body->pos.y = block->pos.y - body->height;
+					body->pos.y = block->pos.y - bodycollision->height - bodycollision->pos.y;
+					body->feetState = PLAYER_FEET_STATE_BLOCK;
 				}
 
-				//上に押し出す
-				else if (body->pos.y < 0.0f)
+				//下からあたる
+				else if (body->move.y < 0.0f)
 				{
-					body->move.y = block->pos.y + block->height;
+					body->pos.y = block->pos.y + block->height - bodycollision->pos.y;
 				}
 
 				body->move.y = 0;

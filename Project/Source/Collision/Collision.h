@@ -1,6 +1,14 @@
 #pragma once
 #include "DxLib.h"
 
+enum PlayerFeetState
+{
+	PLAYER_FEET_STATE_AIR,
+	PLAYER_FEET_STATE_BLOCK,
+	PLAYER_FEET_STATE_STEPLADDER,
+	PLAYER_FEET_STATE_MAX,
+};
+
 struct BodyCollision
 {
 	bool isAir;
@@ -17,6 +25,7 @@ struct Body
 	VECTOR move;
 	float width;
 	float height;
+	PlayerFeetState feetState;
 };
 
 
@@ -31,4 +40,3 @@ bool CheckCirclePoint(float circlePosX, float circlePosY, float circleRadius, fl
 
 // ‰~‚Æ‰~‚Ì“–‚½‚è”»’è
 bool CheckCircleCircle(float circleA_PosX, float circleA_PosY, float circleA_Radius, float circleB_PosX, float circleB_PosY, float circleB_Radius);
-

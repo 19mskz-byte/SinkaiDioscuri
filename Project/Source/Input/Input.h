@@ -28,7 +28,11 @@ bool IsPowerfulInputKey(InputKey);
 //キー押した瞬間判定
 bool IsTriggerPowerfulInputKey(InputKey);
 
+bool IsReleasePowerfulInputKey(InputKey key);
+
 //キー入力判定
 bool IsGimmickInputKey(InputKey);
 //キー押した瞬間判定
 bool IsTriggerGimmickInputKey(InputKey);
+
+bool IsReleaseGimmickInputKey(InputKey key);

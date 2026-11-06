@@ -108,6 +108,11 @@ bool IsTriggerPowerfulInputKey(InputKey key)
 	return (g_PowerfulInputState & key) && !(g_PrevPowerfulInputState & key);
 }
 
+bool IsReleasePowerfulInputKey(InputKey key)
+{
+	return !(g_PowerfulInputState & key) && (g_PrevPowerfulInputState & key);
+}
+
 bool IsGimmickInputKey(InputKey key)
 {
 	return g_GimmickInputState & key;
@@ -116,4 +121,9 @@ bool IsGimmickInputKey(InputKey key)
 bool IsTriggerGimmickInputKey(InputKey key)
 {
 	return (g_GimmickInputState & key) && !(g_PrevGimmickInputState & key);
+}
+
+bool IsReleaseGimmickInputKey(InputKey key)
+{
+	return !(g_GimmickInputState & key) && (g_PrevGimmickInputState & key);
 }

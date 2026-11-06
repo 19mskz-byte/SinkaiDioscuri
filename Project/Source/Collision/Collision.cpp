@@ -118,4 +118,3 @@ bool CheckCircleCircle(float circleA_PosX, float circleA_PosY, float circleA_Rad
 
 	return false;
 }
- 
