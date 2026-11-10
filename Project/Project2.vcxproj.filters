@@ -40,6 +40,9 @@
     <Filter Include="Source\Animation">
       <UniqueIdentifier>{f2f08c18-460f-45a7-b631-1a685d0ad189}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\BG">
+      <UniqueIdentifier>{4d6b6548-761e-4a94-b15b-a898ac43b62b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -86,6 +89,9 @@
     </ClCompile>
     <ClCompile Include="Source\Animation\Animation.cpp">
       <Filter>Source\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\BG\BackGround.cpp">
+      <Filter>Source\BG</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +145,9 @@
     </ClInclude>
     <ClInclude Include="Source\Animation\Animation.h">
       <Filter>Source\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\BG\BackGround.h">
+      <Filter>Source\BG</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
