@@ -5,6 +5,8 @@
 #include "../Map/MapChip.h"
 #include "../Map/MapManager.h"
 #include "../Camera/Camera.h"
+#include "../Collision/Collision.h"
+#include "../Gimmick/WoodBlock/WoodBlock.h"
 
 struct  PlayerAnimationParam
 {
@@ -17,7 +19,7 @@ struct  PlayerAnimationParam
 const PlayerAnimationParam GIMMICK_PLAYER_ANIM_PARAM[GIMMICK_PLAYER_ANIM_MAX] =
 {
 	20,7,80,80,
-	8,7,80,80,
+	3,7,80,80,
 	8,7,80,80,
 	8,7,80,80,
 };
@@ -118,7 +120,7 @@ void StepGimmickPlayer()
 	}
 	if (IsGimmickInputKey(KEY_K))
 	{
-	/*	g_PlayerData.body.move.y = GIMMICK_PLAYER_JUMP_POWER;*/
+		g_PlayerData.body.move.y = GIMMICK_PLAYER_JUMP_POWER;
 	}
 	if (IsGimmickInputKey(KEY_L))
 	{
@@ -149,6 +151,10 @@ void UpdateGimmickPlayer()
 
 	// 当たり判定付きで移動
 	MoveWithCollision(&g_PlayerData.body, &g_PlayerData.bodycollision);
+
+	WoodBlock g_WoodBlock = GetWoodBlock();
+
+	PlayerCollisionHitMWoodBlock(&g_PlayerData.bodycollision, &g_WoodBlock);
 
 	DrawFormatString(0, 13, GetColor(255, 255, 255), "プレイヤーの座標＝[%f, %f]", g_PlayerData.body.pos.x, g_PlayerData.body.pos.y);
 
@@ -190,7 +196,6 @@ GimmickPlayerData* GetGimmickPlayer()
 {
 	return &g_PlayerData;
 }
-
 
 void StartGimmickPlayerAnimation(GimmickPlayerAnimationType anim)
 {

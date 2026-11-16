@@ -4,6 +4,7 @@
 #include "../../Camera/Camera.h"
 #include "../../Player/GimmickPlayer.h"
 #include "../../Player/PowerfulPlayer.h"
+#include "../../Gimmick/WoodBlock/WoodBlock.h"
 
 void InitPlayScene()
 {
@@ -14,6 +15,8 @@ void InitPlayScene()
 	InitGimmickPlayer();
 
 	InitPowerfulPlayer();
+
+	InitWoodBlock();
 }
 
 void StartPlayScene()
@@ -32,6 +35,8 @@ void LoadPlayScene()
 	LoadGimmickPlayer();
 
 	LoadPowerfulPlayer();
+
+	LoadWoodBlock();
 }
 void DrawPlayScene()
 {
@@ -42,6 +47,8 @@ void DrawPlayScene()
 	DrawGimmickPlayer();
 
 	DrawPowerfulPlayer();
+
+	DrawWoodBlock();
 }
 
 void UpdatePlayScene()
@@ -49,6 +56,8 @@ void UpdatePlayScene()
 	UpdateGimmickPlayer();
 
 	UpdatePowerfulPlayer();
+
+	UpdateWoodBlock();
 }
 
 void FinPlayScene()
@@ -58,6 +67,8 @@ void FinPlayScene()
 	FinGimmickPlayer();
 
 	FinPowerfulPlayer();
+	
+	FinWoodBlock();
 }
 
 void StepPlayScene()
@@ -67,4 +78,6 @@ void StepPlayScene()
 	StepGimmickPlayer();
 
 	StepPowerfulPlayer();
+
+	StepWoodBlock();
 }

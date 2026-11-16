@@ -1,5 +1,6 @@
 #pragma once
 #include "DxLib.h"
+#include "../Gimmick/WoodBlock/WoodBlock.h"
 
 enum PlayerFeetState
 {
@@ -40,3 +41,9 @@ bool CheckCirclePoint(float circlePosX, float circlePosY, float circleRadius, fl
 
 // ‰~‚Æ‰~‚Ì“–‚½‚è”»’è
 bool CheckCircleCircle(float circleA_PosX, float circleA_PosY, float circleA_Radius, float circleB_PosX, float circleB_PosY, float circleB_Radius);
+
+void MoveWithCollision(Body* body, BodyCollision* bodycollision);
+
+void WoodBlockHitMapBlock(WoodBlock* woodBlock);
+
+void PlayerCollisionHitMWoodBlock(BodyCollision* bodycollision, WoodBlock* woodBlock);

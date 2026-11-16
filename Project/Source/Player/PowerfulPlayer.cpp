@@ -17,7 +17,7 @@ struct  PlayerAnimationParam
 const PlayerAnimationParam POWERFUL_PLAYER_ANIM_PARAM[POWERFUL_PLAYER_ANIM_MAX] =
 {
 	20,7,80,80,
-	8,7,80,80,
+	3,7,80,80,
 	8,7,80,80,
 	8,7,80,80,
 };

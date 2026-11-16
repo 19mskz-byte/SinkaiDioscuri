@@ -43,6 +43,12 @@
     <Filter Include="Source\BG">
       <UniqueIdentifier>{4d6b6548-761e-4a94-b15b-a898ac43b62b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Gimmick">
+      <UniqueIdentifier>{50d51a3a-3a26-4fbb-90b7-a7f7594626dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Gimmick\WoodBlock">
+      <UniqueIdentifier>{6703818a-571f-4a61-9bf9-6a06c8c7485b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -92,6 +98,9 @@
     </ClCompile>
     <ClCompile Include="Source\BG\BackGround.cpp">
       <Filter>Source\BG</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Gimmick\WoodBlock\WoodBlock.cpp">
+      <Filter>Source\Gimmick\WoodBlock</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -148,6 +157,9 @@
     </ClInclude>
     <ClInclude Include="Source\BG\BackGround.h">
       <Filter>Source\BG</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Gimmick\WoodBlock\WoodBlock.h">
+      <Filter>Source\Gimmick\WoodBlock</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

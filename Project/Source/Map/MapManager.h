@@ -8,4 +8,3 @@ void StartMap();
 void DrawMap();
 void FinMap();
 
-void MoveWithCollision(Body* body,BodyCollision*bodycollision);

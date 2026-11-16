@@ -4,6 +4,7 @@
 #include "../Player/GimmickPlayer.h"
 #include "../Map/Block.h"
 #include "../Map//MapManager.h"
+#include "../Map/MapChip.h"
 #include <math.h>
 
 // 矩形と点の当たり判定
@@ -48,7 +49,7 @@ bool CheckSquareSquare(float squareA_PosX, float squareA_PosY, float squareA_Wid
 {
 	// 矩形Aの各辺の位置を計算する
 	float leftA = squareA_PosX;
-	float rightA = squareA_PosX + squareA_Width;
+	float rightA = squareA_PosX + squareA_Width; 
 	float topA = squareA_PosY;
 	float bottomA = squareA_PosY + squareA_Height;
 
@@ -118,3 +119,175 @@ bool CheckCircleCircle(float circleA_PosX, float circleA_PosY, float circleA_Rad
 
 	return false;
 }
+
+void MoveWithCollision(Body* body, BodyCollision* bodycollision)
+{
+	float prevPosY = body->pos.y - body->move.y;
+
+	body->feetState = PLAYER_FEET_STATE_AIR;
+
+	for (int y = 0; y < MAP_CHIP_Y_NUM; y++)
+	{
+		for (int x = 0; x < MAP_CHIP_X_NUM; x++)
+		{
+			MapChipData mapChipData = GetMapChipData(x, y);
+			if (mapChipData.mapChip == 0)continue;
+
+			BlockData* block = mapChipData.data;
+			if (CheckSquareSquare(body->pos.x + bodycollision->pos.x, prevPosY + bodycollision->pos.y, bodycollision->width, bodycollision->height,
+				block->pos.x, block->pos.y, block->width, block->height))
+			{
+				//右からあたる
+				if (body->move.x > 0.0f)
+				{
+					body->pos.x = block->pos.x - bodycollision->width - bodycollision->pos.x;
+				}
+
+				//左からあたる
+				else if (body->move.x < 0.0f)
+				{
+					body->pos.x = block->pos.x + block->width - bodycollision->pos.x;
+				}
+
+				body->move.x = 0.0f;
+			}
+		}
+	}
+
+	for (int y = 0; y < MAP_CHIP_Y_NUM; y++)
+	{
+		for (int x = 0; x < MAP_CHIP_X_NUM; x++)
+		{
+			MapChipData mapChipData = GetMapChipData(x, y);
+			if (mapChipData.mapChip == 0)continue;
+
+			BlockData* block = mapChipData.data;
+			if (CheckSquareSquare(body->pos.x + bodycollision->pos.x, body->pos.y + bodycollision->pos.y, bodycollision->width, bodycollision->height,
+				block->pos.x, block->pos.y, block->width, block->height))
+			{
+				//上からあたる
+				if (body->move.y > 0.0f)
+				{
+					body->pos.y = block->pos.y - bodycollision->height - bodycollision->pos.y;
+					body->feetState = PLAYER_FEET_STATE_BLOCK;
+				}
+
+				//下からあたる
+				else if (body->move.y < 0.0f)
+				{
+					body->pos.y = block->pos.y + block->height - bodycollision->pos.y;
+				}
+
+				body->move.y = 0;
+			}
+		}
+	}
+}
+
+void WoodBlockHitMapBlock(WoodBlock* woodBlock)
+{
+	float prevPosY = woodBlock->pos.y - woodBlock->move.y;
+
+	for (int y = 0; y < MAP_CHIP_Y_NUM; y++)
+	{
+		for (int x = 0; x < MAP_CHIP_X_NUM; x++)
+		{
+			MapChipData mapChipData = GetMapChipData(x, y);
+			if (mapChipData.mapChip == 0)continue;
+
+			BlockData* block = mapChipData.data;
+			if (CheckSquareSquare(woodBlock->pos.x, prevPosY, woodBlock->width, woodBlock->height,
+				block->pos.x, block->pos.y, block->width, block->height))
+			{
+				//右からあたる
+				if (woodBlock->move.x > 0.0f)
+				{
+					woodBlock->pos.x = block->pos.x - woodBlock->width - woodBlock->pos.x;
+					woodBlock->state = WOOD_BLOCK_STATE_IDLE;
+				}
+
+				//左からあたる
+				else if (woodBlock->move.x < 0.0f)
+				{
+					woodBlock->pos.x = block->pos.x + block->width - woodBlock->pos.x;
+					woodBlock->state = WOOD_BLOCK_STATE_IDLE;
+				}
+
+				woodBlock->move.x = 0.0f;
+			}
+		}
+	}
+
+	for (int y = 0; y < MAP_CHIP_Y_NUM; y++)
+	{
+		for (int x = 0; x < MAP_CHIP_X_NUM; x++)
+		{
+			MapChipData mapChipData = GetMapChipData(x, y);
+			if (mapChipData.mapChip == 0)continue;
+
+			BlockData* block = mapChipData.data;
+			if (CheckSquareSquare(woodBlock->pos.x, woodBlock->pos.y, woodBlock->width, woodBlock->height,
+				block->pos.x, block->pos.y, block->width, block->height))
+			{
+				//上からあたる
+				if (woodBlock->move.y > 0.0f)
+				{
+					woodBlock->pos.y = block->pos.y - woodBlock->height - woodBlock->pos.y;
+					woodBlock->state = WOOD_BLOCK_STATE_IDLE;
+				}
+
+				//下からあたる
+				else if (woodBlock->move.y < 0.0f)
+				{
+					woodBlock->pos.y = block->pos.y + block->height - woodBlock->pos.y;
+					woodBlock->state = WOOD_BLOCK_STATE_IDLE;
+				}
+
+				woodBlock->move.y = 0;
+			}
+		}
+	}
+}
+
+void PlayerCollisionHitMWoodBlock(BodyCollision* bodycollision, WoodBlock* woodBlock)
+{
+	if (!woodBlock->active)return;
+
+	float prevPosY =bodycollision->pos.y-bodycollision->move.y;
+
+	if (CheckSquareSquare(bodycollision->pos.x + bodycollision->pos.x, prevPosY + bodycollision->pos.y, bodycollision->width, bodycollision->height,
+       woodBlock->pos.x, woodBlock->pos.y, woodBlock->width, woodBlock->height))
+			{
+		//右からあたる
+		if (bodycollision->move.x > 0.0f)
+		{
+			bodycollision->pos.x = woodBlock->pos.x - bodycollision->width - bodycollision->pos.x;
+		}
+
+		//左からあたる
+		else if (bodycollision->move.x < 0.0f)
+		{
+			bodycollision->pos.x = woodBlock->pos.x + woodBlock->width - bodycollision->pos.x;
+		}
+
+		bodycollision->move.x = 0.0f;
+	}
+
+	if (CheckSquareSquare(bodycollision->pos.x + bodycollision->pos.x, bodycollision->pos.y + bodycollision->pos.y, bodycollision->width, bodycollision->height,
+		woodBlock->pos.x, woodBlock->pos.y, woodBlock->width, woodBlock->height))
+	{
+		//上からあたる
+		if (bodycollision->move.y > 0.0f)
+		{
+			bodycollision->pos.y = woodBlock->pos.y - bodycollision->height - bodycollision->pos.y;
+		}
+
+		//下からあたる
+		else if (bodycollision->move.y < 0.0f)
+		{
+			bodycollision->pos.y = woodBlock->pos.y + woodBlock->height - bodycollision->pos.y;
+		}
+
+		bodycollision->move.y = 0;
+	}
+}                                                                                   
