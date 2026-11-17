@@ -234,7 +234,7 @@ void WoodBlockHitMapBlock(WoodBlock* woodBlock)
 				{
 					woodBlock->pos.y = block->pos.y - woodBlock->height - woodBlock->pos.y;
 					woodBlock->state = WOOD_BLOCK_STATE_IDLE;
-				}
+0				}
 
 				//‰º‚©‚ç‚ ‚½‚é
 				else if (woodBlock->move.y < 0.0f)

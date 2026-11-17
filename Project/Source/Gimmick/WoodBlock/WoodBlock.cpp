@@ -1,5 +1,6 @@
 #include "WoodBlock.h"
 #include "../../Collision/Collision.h"
+#include "../../Camera/Camera.h"
 
 WoodBlock g_WoodBlock = { 0 };
 
@@ -7,7 +8,7 @@ void InitWoodBlock()
 {
 	for (int i = 0; i < WOOD_BLOCK_MAP_MAX; i++)
 	{
-		g_WoodBlock.pos.x =300.0f;
+		g_WoodBlock.pos.x =500.0f;
 		g_WoodBlock.pos.y = 600.0f;
 		g_WoodBlock.move.x = 0.0f;
 		g_WoodBlock.move.y = 0.0f;
@@ -54,10 +55,11 @@ void UpdateWoodBlock()
 void DrawWoodBlock()
 {
 	if (!g_WoodBlock.active) return;
+	CameraData camera = GetCamera();
+
 	for (int i = 0; i < WOOD_BLOCK_MAP_MAX; i++)
 	{
-		if (!g_WoodBlock.active) return;
-		DrawGraph((int)g_WoodBlock.pos.x, (int)g_WoodBlock.pos.y, g_WoodBlock.hundle, TRUE);
+		DrawGraph((int)(g_WoodBlock.pos.x), (int)(g_WoodBlock.pos.y - camera.pos.y), g_WoodBlock.hundle, TRUE);
 	}
 }
 
