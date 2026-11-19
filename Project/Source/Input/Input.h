@@ -11,8 +11,9 @@ enum InputKey
 	KEY_K = (1 << 6),
 	KEY_L = (1 << 7),
 	KEY_F = (1 << 8),
-	KEY_U = (1 << 9),
-	KEY_H = (1 << 10),
+	KEY_R = (1 << 9),
+	KEY_U = (1 << 10),
+	KEY_H = (1 << 11),
 };
 
 void InitInput();

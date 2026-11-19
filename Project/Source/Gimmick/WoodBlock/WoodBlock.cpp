@@ -73,7 +73,7 @@ void FinWoodBlock()
 	}
 }
 
-WoodBlock GetWoodBlock()
+WoodBlock* GetWoodBlock()
 {
-	return g_WoodBlock;
+	return &g_WoodBlock;
 }

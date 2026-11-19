@@ -46,4 +46,4 @@ void MoveWithCollision(Body* body, BodyCollision* bodycollision);
 
 void WoodBlockHitMapBlock(WoodBlock* woodBlock);
 
-void PlayerCollisionHitMWoodBlock(BodyCollision* bodycollision, WoodBlock* woodBlock);
+void PlayerCollisionHitWoodBlock(Body* body, BodyCollision* bodycollision, WoodBlock* woodBlock);

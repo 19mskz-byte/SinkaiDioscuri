@@ -44,6 +44,7 @@ const PlayerAnimationParam GIMMICK_PLAYER_ANIM_PARAM[GIMMICK_PLAYER_ANIM_MAX] =
 #define GIMMICK_PLAYER_BOX_COLLISION_OFFSET_Y (0)
 #define GIMMICK_PLAYER_BOX_COLLISION_WIDTH (40.0f)
 #define GIMMICK_PLAYER_BOX_COLLISION_HEIGHT (80.0f)
+#define GIMMICK_PLAYER_BOX_COLLISION_RADIUS (20.0f)
 
 #define GIMMICK_PLAYER_CHECK_ROUDND_NUM (2)
 
@@ -61,6 +62,8 @@ void InitGimmickPlayer()
 	g_PlayerData.active = false;
 	g_PlayerData.playAnim = GIMMICK_PLAYER_ANIM_NONE;
 	g_PlayerData.body.isAir = false;
+	g_PlayerData.playerAmontType = PLAYER_AMOUNT_NONE;
+	g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_NONE;
 
 	for (int i = 0; i < GIMMICK_PLAYER_ANIM_MAX; i++)
 	{
@@ -152,9 +155,9 @@ void UpdateGimmickPlayer()
 	// 当たり判定付きで移動
 	MoveWithCollision(&g_PlayerData.body, &g_PlayerData.bodycollision);
 
-	WoodBlock g_WoodBlock = GetWoodBlock();
+	WoodBlock* g_WoodBlock = GetWoodBlock();
 
-	PlayerCollisionHitMWoodBlock(&g_PlayerData.bodycollision, &g_WoodBlock);
+	PlayerCollisionHitWoodBlock(&g_PlayerData.body, &g_PlayerData.bodycollision, g_WoodBlock);
 
 	DrawFormatString(0, 13, GetColor(255, 255, 255), "プレイヤーの座標＝[%f, %f]", g_PlayerData.body.pos.x, g_PlayerData.body.pos.y);
 

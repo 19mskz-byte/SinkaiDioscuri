@@ -19,9 +19,6 @@
     <Filter Include="Source\Input">
       <UniqueIdentifier>{9a8900a1-e4f0-4321-b13d-4a0025c29a0a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\GameSetting">
-      <UniqueIdentifier>{8e8d3a3d-e513-49ed-b745-7beec369634f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Camera">
       <UniqueIdentifier>{c6b89292-1a28-46cd-9ae6-6710ff122cca}</UniqueIdentifier>
     </Filter>
@@ -48,6 +45,9 @@
     </Filter>
     <Filter Include="Source\Gimmick\WoodBlock">
       <UniqueIdentifier>{6703818a-571f-4a61-9bf9-6a06c8c7485b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\GameSetting">
+      <UniqueIdentifier>{8e8d3a3d-e513-49ed-b745-7beec369634f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

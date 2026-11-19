@@ -78,6 +78,10 @@ void UpdateInput()
 	{
 		g_PowerfulInputState |= KEY_F;
 	}
+	if (CheckHitKey(KEY_INPUT_R))
+	{
+		g_PowerfulInputState |= KEY_R;
+	}
 	if (CheckHitKey(KEY_INPUT_H))
 	{
 		g_GimmickInputState |= KEY_H;

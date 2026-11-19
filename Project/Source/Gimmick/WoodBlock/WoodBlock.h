@@ -35,4 +35,4 @@ void UpdateWoodBlock();
 void DrawWoodBlock();
 void FinWoodBlock();
 
-WoodBlock GetWoodBlock();
+WoodBlock* GetWoodBlock();

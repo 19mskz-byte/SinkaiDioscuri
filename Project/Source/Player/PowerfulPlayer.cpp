@@ -40,7 +40,6 @@ const PlayerAnimationParam POWERFUL_PLAYER_ANIM_PARAM[POWERFUL_PLAYER_ANIM_MAX] 
 #define POWERFUL_PLAYER_BOX_COLLISION_OFFSET_Y (0)
 #define POWERFUL_PLAYER_BOX_COLLISION_WIDTH (40.0f)
 #define POWERFUL_PLAYER_BOX_COLLISION_HEIGHT (80.0f)
-
 #define POWERFUL_PLAYER_CHECK_ROUDND_NUM (2)
 
 PowerfulPlayerData g_PlayerData = { 0 };
@@ -57,6 +56,8 @@ void InitPowerfulPlayer()
 	g_PlayerData.active = false;
 	g_PlayerData.playAnim = POWERFUL_PLAYER_ANIM_NONE;
 	g_PlayerData.body.isAir = false;
+	g_PlayerData.playerAmontType = PLAYER_AMOUNT_NONE;
+	g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_NONE;
 
 	for (int i = 0; i < POWERFUL_PLAYER_ANIM_MAX; i++)
 	{
@@ -127,7 +128,18 @@ void StepPowerfulPlayer()
 	}
 	if (IsPowerfulInputKey(KEY_F))
 	{
-
+		if(g_PlayerData.playerAmontType==PLAYER_AMOUNT_NONE)
+		{
+			g_PlayerData.playerAmontType = PLAYER_AMOUNT_WOODBLOCK;
+			g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_IDLE;
+		}
+	}
+	if (IsPowerfulInputKey(KEY_R))
+	{
+		if(g_PlayerData.playerAmontType==PLAYER_AMOUNT_WOODBLOCK && g_PlayerData.playerAmontState==PLAYER_AMOUNT_STATE_IDLE)
+		{
+			g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_PUT;
+		}
 	}
 }
 
@@ -143,8 +155,40 @@ void UpdatePowerfulPlayer()
 	g_PlayerData.body.pos.x += g_PlayerData.body.move.x;
 	g_PlayerData.body.pos.y += g_PlayerData.body.move.y;
 
+
 	// “–‚½‚è”»’è•t‚«‚ÅˆÚ“®
 	MoveWithCollision(&g_PlayerData.body,&g_PlayerData.bodycollision);
+
+	WoodBlock* g_WoodBlock = GetWoodBlock();
+
+	if (g_PlayerData.playerAmontType != PLAYER_AMOUNT_NONE)
+	{
+		if (g_PlayerData.playerAmontType == PLAYER_AMOUNT_WOODBLOCK && g_PlayerData.playerAmontState == PLAYER_AMOUNT_STATE_IDLE)
+		{
+			g_WoodBlock->pos.x = g_PlayerData.body.pos.x + g_PlayerData.bodycollision.pos.x;
+			g_WoodBlock->pos.y = g_PlayerData.body.pos.y - g_WoodBlock->height;
+			g_WoodBlock->move.x = 0.0f;
+			g_WoodBlock->move.y = 0.0f;
+		}
+
+		if (g_PlayerData.playerAmontState == PLAYER_AMOUNT_STATE_PUT)
+		{
+			if (!g_PlayerData.isTurn)
+			{
+				g_WoodBlock->pos.x = g_PlayerData.body.pos.x + g_PlayerData.body.width + g_PlayerData.bodycollision.width / 2;
+			}
+			else
+			{
+				g_WoodBlock->pos.x = g_PlayerData.body.pos.x - g_PlayerData.bodycollision.width / 2;
+			}
+			g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_NONE;
+			g_PlayerData.playerAmontType = PLAYER_AMOUNT_NONE;
+		}
+	}
+	else
+	{
+		PlayerCollisionHitWoodBlock(&g_PlayerData.body, &g_PlayerData.bodycollision, g_WoodBlock);
+	}
 
 	UpdatePowerfulPlayerAnimation();
 }

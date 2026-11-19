@@ -24,6 +24,22 @@ enum GimmickPlayerAnimationType
 	GIMMICK_PLAYER_ANIM_NONE = -1
 };
 
+enum PlayerAmontType
+{
+	PLAYER_AMOUNT_NONE=-1,
+	PLAYER_AMOUNT_WOODBLOCK,
+	PLAYER_AMOUNT_MAX,
+};
+
+enum PlayerAmontState
+{
+	PLAYER_AMOUNT_STATE_NONE=-1,
+	PLAYER_AMOUNT_STATE_IDLE,
+	PLAYER_AMOUNT_STATE_THROW,
+	PLAYER_AMOUNT_STATE_PUT,
+	PLAYER_AMOUNT_STATE_MAX,
+};
+
 // プレイヤーデータ
 struct PowerfulPlayerData
 {
@@ -31,8 +47,10 @@ struct PowerfulPlayerData
 	bool isTurn;										// 左を向いているか
 	AnimationData* animation[POWERFUL_PLAYER_ANIM_MAX];	// アニメーション
 	PowerfulPlayerAnimationType playAnim;				// 再生中のアニメーション
-	Body body;											// 矩形当たり判定
-	BodyCollision bodycollision;			    
+	Body body;											//	本体の当たり判定
+	BodyCollision bodycollision;						//	矩形の当たり判定
+	PlayerAmontType playerAmontType;					// プレイヤーが持っている物の種類
+	PlayerAmontState playerAmontState;					// プレイヤーが持っている物の状態
 };
 
 struct GimmickPlayerData
@@ -41,6 +59,8 @@ struct GimmickPlayerData
 	bool isTurn;										// 左を向いているか
 	AnimationData* animation[GIMMICK_PLAYER_ANIM_MAX];	// アニメーション
 	GimmickPlayerAnimationType playAnim;				// 再生中のアニメーション
-	Body body;											// 矩形当たり判定
-	BodyCollision bodycollision;
+	Body body;											//	本体の当たり判定
+	BodyCollision bodycollision;						//	矩形の当たり判定
+	PlayerAmontType playerAmontType;					// プレイヤーが持っている物の種類
+	PlayerAmontState playerAmontState;					// プレイヤーが持っている物の状態
 };

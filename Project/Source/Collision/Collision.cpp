@@ -202,14 +202,14 @@ void WoodBlockHitMapBlock(WoodBlock* woodBlock)
 				//‰E‚©‚ç‚ ‚½‚é
 				if (woodBlock->move.x > 0.0f)
 				{
-					woodBlock->pos.x = block->pos.x - woodBlock->width - woodBlock->pos.x;
+					woodBlock->pos.x = block->pos.x - woodBlock->width;
 					woodBlock->state = WOOD_BLOCK_STATE_IDLE;
 				}
 
 				//¶‚©‚ç‚ ‚½‚é
 				else if (woodBlock->move.x < 0.0f)
 				{
-					woodBlock->pos.x = block->pos.x + block->width - woodBlock->pos.x;
+					woodBlock->pos.x = block->pos.x + block->width;
 					woodBlock->state = WOOD_BLOCK_STATE_IDLE;
 				}
 
@@ -232,14 +232,14 @@ void WoodBlockHitMapBlock(WoodBlock* woodBlock)
 				//ã‚©‚ç‚ ‚½‚é
 				if (woodBlock->move.y > 0.0f)
 				{
-					woodBlock->pos.y = block->pos.y - woodBlock->height - woodBlock->pos.y;
+					woodBlock->pos.y = block->pos.y - woodBlock->height;
 					woodBlock->state = WOOD_BLOCK_STATE_IDLE;
-0				}
+				}
 
 				//‰º‚©‚ç‚ ‚½‚é
 				else if (woodBlock->move.y < 0.0f)
 				{
-					woodBlock->pos.y = block->pos.y + block->height - woodBlock->pos.y;
+					woodBlock->pos.y = block->pos.y + block->height;
 					woodBlock->state = WOOD_BLOCK_STATE_IDLE;
 				}
 
@@ -249,45 +249,46 @@ void WoodBlockHitMapBlock(WoodBlock* woodBlock)
 	}
 }
 
-void PlayerCollisionHitMWoodBlock(BodyCollision* bodycollision, WoodBlock* woodBlock)
+void PlayerCollisionHitWoodBlock(Body* body,BodyCollision* bodycollision, WoodBlock* woodBlock)
 {
 	if (!woodBlock->active)return;
 
-	float prevPosY =bodycollision->pos.y-bodycollision->move.y;
+	float prevPosY = body->pos.y- body->move.y;
 
-	if (CheckSquareSquare(bodycollision->pos.x + bodycollision->pos.x, prevPosY + bodycollision->pos.y, bodycollision->width, bodycollision->height,
+	if (CheckSquareSquare(body->pos.x + bodycollision->pos.x, prevPosY + bodycollision->pos.y, bodycollision->width, bodycollision->height,
        woodBlock->pos.x, woodBlock->pos.y, woodBlock->width, woodBlock->height))
 			{
 		//‰E‚©‚ç‚ ‚½‚é
-		if (bodycollision->move.x > 0.0f)
+		if (body->move.x > 0.0f)
 		{
-			bodycollision->pos.x = woodBlock->pos.x - bodycollision->width - bodycollision->pos.x;
+			body->pos.x = woodBlock->pos.x - bodycollision->width - bodycollision->pos.x;
 		}
 
 		//¶‚©‚ç‚ ‚½‚é
-		else if (bodycollision->move.x < 0.0f)
+		else if (body->move.x < 0.0f)
 		{
-			bodycollision->pos.x = woodBlock->pos.x + woodBlock->width - bodycollision->pos.x;
+			body->pos.x = woodBlock->pos.x + woodBlock->width - bodycollision->pos.x;
 		}
 
-		bodycollision->move.x = 0.0f;
+		body->move.x = 0.0f;
 	}
 
-	if (CheckSquareSquare(bodycollision->pos.x + bodycollision->pos.x, bodycollision->pos.y + bodycollision->pos.y, bodycollision->width, bodycollision->height,
+	if (CheckSquareSquare(body->pos.x + bodycollision->pos.x, body->pos.y + bodycollision->pos.y, bodycollision->width, bodycollision->height,
 		woodBlock->pos.x, woodBlock->pos.y, woodBlock->width, woodBlock->height))
 	{
 		//ã‚©‚ç‚ ‚½‚é
-		if (bodycollision->move.y > 0.0f)
+		if (body->move.y > 0.0f)
 		{
-			bodycollision->pos.y = woodBlock->pos.y - bodycollision->height - bodycollision->pos.y;
+			body->pos.y = woodBlock->pos.y - bodycollision->height - bodycollision->pos.y;
+			body->feetState = PLAYER_FEET_STATE_BLOCK;
 		}
 
 		//‰º‚©‚ç‚ ‚½‚é
-		else if (bodycollision->move.y < 0.0f)
+		else if (body->move.y < 0.0f)
 		{
-			bodycollision->pos.y = woodBlock->pos.y + woodBlock->height - bodycollision->pos.y;
+			body->pos.y = woodBlock->pos.y + woodBlock->height - bodycollision->pos.y;
 		}
 
-		bodycollision->move.y = 0;
+		body->move.y = 0;
 	}
 }                                                                                   
