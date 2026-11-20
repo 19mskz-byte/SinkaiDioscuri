@@ -3,6 +3,14 @@
 #include "../Collision/Collision.h"
 #include "../Animation/Animation.h"
 
+enum PlayerType
+{
+	PLAYER_TYPE_NONE = -1,
+	PLAYER_TYPE_POWERFUL,
+	PLAYER_TYPE_GIMMICK,
+	PLAYER_TYPE_MAX,
+};
+
 // アニメーションタイプ
 enum PowerfulPlayerAnimationType
 {
@@ -14,6 +22,7 @@ enum PowerfulPlayerAnimationType
 	POWERFUL_PLAYER_ANIM_NONE = -1
 };
 
+//アニメーションの状態
 enum GimmickPlayerAnimationType
 {
 	GIMMICK_PLAYER_ANIM_IDLE,
@@ -24,6 +33,7 @@ enum GimmickPlayerAnimationType
 	GIMMICK_PLAYER_ANIM_NONE = -1
 };
 
+//持っている物の種類
 enum PlayerAmontType
 {
 	PLAYER_AMOUNT_NONE=-1,
@@ -31,6 +41,7 @@ enum PlayerAmontType
 	PLAYER_AMOUNT_MAX,
 };
 
+//持っている物の状態
 enum PlayerAmontState
 {
 	PLAYER_AMOUNT_STATE_NONE=-1,
@@ -43,6 +54,7 @@ enum PlayerAmontState
 // プレイヤーデータ
 struct PowerfulPlayerData
 {
+	PlayerType playerType;								// プレイヤーの種類
 	bool active;										// 生存フラグ
 	bool isTurn;										// 左を向いているか
 	AnimationData* animation[POWERFUL_PLAYER_ANIM_MAX];	// アニメーション
@@ -55,6 +67,7 @@ struct PowerfulPlayerData
 
 struct GimmickPlayerData
 {
+	PlayerType playerType;								// プレイヤーの種類
 	bool active;										// 生存フラグ
 	bool isTurn;										// 左を向いているか
 	AnimationData* animation[GIMMICK_PLAYER_ANIM_MAX];	// アニメーション

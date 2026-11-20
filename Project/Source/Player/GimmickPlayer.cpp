@@ -48,9 +48,10 @@ const PlayerAnimationParam GIMMICK_PLAYER_ANIM_PARAM[GIMMICK_PLAYER_ANIM_MAX] =
 
 #define GIMMICK_PLAYER_CHECK_ROUDND_NUM (2)
 
-GimmickPlayerData g_PlayerData = { 0 };
-GimmickPlayerData g_PrevPlayerData = { 0 };
+GimmickPlayerData g_PlayerData;
+GimmickPlayerData g_PrevPlayerData;
 
+//独自の関数
 void StartGimmickPlayerAnimation(GimmickPlayerAnimationType anim);
 void UpdateGimmickPlayerAnimation();
 void GimmickPlayerCalcBoxCollision(GimmickPlayerData player, float& x, float& y, float& w, float& h);
@@ -58,12 +59,15 @@ void GimmickPlayerCalcBoxCollision(GimmickPlayerData player, float& x, float& y,
 void InitGimmickPlayer()
 {
 	//構造体はmemsetで0初期化できる
-	memset(&g_PlayerData.body, 0, sizeof(g_PlayerData.body));
+	//右の容量がでかいとバグる
+	memset(&g_PlayerData, 0, sizeof(g_PlayerData));
 	g_PlayerData.active = false;
 	g_PlayerData.playAnim = GIMMICK_PLAYER_ANIM_NONE;
 	g_PlayerData.body.isAir = false;
 	g_PlayerData.playerAmontType = PLAYER_AMOUNT_NONE;
 	g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_NONE;
+	g_PlayerData.isTurn = false;
+	g_PlayerData.playerType = PLAYER_TYPE_NONE;
 
 	for (int i = 0; i < GIMMICK_PLAYER_ANIM_MAX; i++)
 	{
@@ -82,7 +86,9 @@ void LoadGimmickPlayer()
 
 void StartGimmickPlayer()
 {
+	g_PlayerData.playerType = PLAYER_TYPE_GIMMICK;
 	g_PlayerData.active = true;
+	g_PlayerData.isTurn = false;
 	g_PlayerData.body.pos.x = GIMMICK_PLAYER_DEFAULT_POS_X;
 	g_PlayerData.body.pos.y = GIMMICK_PLAYER_DEFAULT_POS_Y;
 	g_PlayerData.body.width = GIMMICK_PLAYER_WIDTH;
@@ -107,10 +113,12 @@ void StepGimmickPlayer()
 
 	g_PlayerData.body.move.x = 0.0f;
 
+	//重力
 	g_PlayerData.body.move.y += GIMMICK_PLAYER_GRAVITY;
 
 	if (IsGimmickInputKey(KEY_I))
 	{
+		//地面がブロックの場合
 		if (g_PlayerData.body.feetState == PLAYER_FEET_STATE_BLOCK)
 		{
 			g_PlayerData.body.move.y = -GIMMICK_PLAYER_JUMP_POWER;
@@ -119,6 +127,7 @@ void StepGimmickPlayer()
 	if (IsGimmickInputKey(KEY_J))
 	{
 		g_PlayerData.body.move.x = -GIMMICK_PLAYER_MOVESPEED;
+		//左向き
 		g_PlayerData.isTurn = true;
 	}
 	if (IsGimmickInputKey(KEY_K))
@@ -128,6 +137,7 @@ void StepGimmickPlayer()
 	if (IsGimmickInputKey(KEY_L))
 	{
 		g_PlayerData.body.move.x = GIMMICK_PLAYER_MOVESPEED;
+		//右向き
 		g_PlayerData.isTurn = false;
 	}
 	if (IsGimmickInputKey(KEY_H))
@@ -144,6 +154,7 @@ void UpdateGimmickPlayer()
 {
 	if (!g_PlayerData.active)return;
 
+	//空をとんでいるか
 	if (g_PlayerData.body.move.y<0.0f || g_PlayerData.body.move.y>GIMMICK_PLAYER_GRAVITY)
 	{
 		g_PlayerData.body.isAir = true;
@@ -155,12 +166,14 @@ void UpdateGimmickPlayer()
 	// 当たり判定付きで移動
 	MoveWithCollision(&g_PlayerData.body, &g_PlayerData.bodycollision);
 
+	//木箱の当たり判定
 	WoodBlock* g_WoodBlock = GetWoodBlock();
-
 	PlayerCollisionHitWoodBlock(&g_PlayerData.body, &g_PlayerData.bodycollision, g_WoodBlock);
 
+	//デバッグ用プレイヤー座標
 	DrawFormatString(0, 13, GetColor(255, 255, 255), "プレイヤーの座標＝[%f, %f]", g_PlayerData.body.pos.x, g_PlayerData.body.pos.y);
 
+	//アニメーション更新
 	UpdateGimmickPlayerAnimation();
 }
 
@@ -171,6 +184,7 @@ void DrawGimmickPlayer()
 	int playerX = (int)(g_PlayerData.body.pos.x + 0.5f);
 	int	playerY = (int)(g_PlayerData.body.pos.y + 0.5f);
 
+	//カメラを取得してカメラのy座標分プレイヤーの位置をあげる
 	GimmickPlayerData temp = g_PlayerData;
 	CameraData camera = GetCamera();
 

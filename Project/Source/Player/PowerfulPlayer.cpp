@@ -27,6 +27,7 @@ const PlayerAnimationParam POWERFUL_PLAYER_ANIM_PARAM[POWERFUL_PLAYER_ANIM_MAX] 
 #define POWERFUL_PLAYER_DEFAULT_POS_Y (1255.0f)
 #define POWERFUL_PLAYER_MOVESPEED (7.0f)
 #define POWERFUL_PLAYER_JUMP_POWER (8.0f)
+#define POWERFUL_PLAYER_LIMIT_PUT (45.0f)
 
 //重力
 #define POWERFUL_PLAYER_GRAVITY (0.4f)
@@ -42,9 +43,10 @@ const PlayerAnimationParam POWERFUL_PLAYER_ANIM_PARAM[POWERFUL_PLAYER_ANIM_MAX] 
 #define POWERFUL_PLAYER_BOX_COLLISION_HEIGHT (80.0f)
 #define POWERFUL_PLAYER_CHECK_ROUDND_NUM (2)
 
-PowerfulPlayerData g_PlayerData = { 0 };
-PowerfulPlayerData g_PrevPlayerData = { 0 };
+PowerfulPlayerData g_PlayerData;
+PowerfulPlayerData g_PrevPlayerData;
 
+//独自の関数
 void StartPowerfulPlayerAnimation(PowerfulPlayerAnimationType anim);
 void UpdatePowerfulPlayerAnimation();
 void PowerfulPlayerCalcBoxCollision(PowerfulPlayerData player, float& x, float& y, float& w, float& h);
@@ -52,12 +54,13 @@ void PowerfulPlayerCalcBoxCollision(PowerfulPlayerData player, float& x, float& 
 void InitPowerfulPlayer()
 {
 	//構造体はmemsetで0初期化できる
-	memset(&g_PlayerData.body, 0, sizeof(g_PlayerData.body));
+	memset(&g_PlayerData, 0, sizeof(g_PlayerData));
 	g_PlayerData.active = false;
 	g_PlayerData.playAnim = POWERFUL_PLAYER_ANIM_NONE;
 	g_PlayerData.body.isAir = false;
 	g_PlayerData.playerAmontType = PLAYER_AMOUNT_NONE;
 	g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_NONE;
+	g_PlayerData.playerType = PLAYER_TYPE_NONE;
 
 	for (int i = 0; i < POWERFUL_PLAYER_ANIM_MAX; i++)
 	{
@@ -76,6 +79,7 @@ void LoadPowerfulPlayer()
 
 void StartPowerfulPlayer()
 {
+	g_PlayerData.playerType = PLAYER_TYPE_POWERFUL;
 	g_PlayerData.active = true;
 	g_PlayerData.body.pos.x = POWERFUL_PLAYER_DEFAULT_POS_X;
 	g_PlayerData.body.pos.y = POWERFUL_PLAYER_DEFAULT_POS_Y;
@@ -101,12 +105,15 @@ void StepPowerfulPlayer()
 
 	g_PlayerData.body.move.x = 0.0f;
 
-	/*g_PlayerData.body.move.y = 0.0f;*/
-
+	//重力をかける
 	g_PlayerData.body.move.y += POWERFUL_PLAYER_GRAVITY;
+
+	//木箱を取得
+	WoodBlock* g_WoodBlock = GetWoodBlock();
 
 	if (IsPowerfulInputKey(KEY_W))
 	{
+		//地面がブロックの場合
 		if (g_PlayerData.body.feetState == PLAYER_FEET_STATE_BLOCK)
 		{
 			g_PlayerData.body.move.y = -POWERFUL_PLAYER_JUMP_POWER;
@@ -114,6 +121,7 @@ void StepPowerfulPlayer()
 	}
 	if (IsPowerfulInputKey(KEY_A))
 	{
+		//左向き
 		g_PlayerData.body.move.x = -POWERFUL_PLAYER_MOVESPEED;
 		g_PlayerData.isTurn = true;
 	}
@@ -123,12 +131,14 @@ void StepPowerfulPlayer()
 	}
 	if (IsPowerfulInputKey(KEY_D))
 	{
+		//右向き
 		g_PlayerData.body.move.x = POWERFUL_PLAYER_MOVESPEED;
 		g_PlayerData.isTurn = false;
 	}
 	if (IsPowerfulInputKey(KEY_F))
 	{
-		if(g_PlayerData.playerAmontType==PLAYER_AMOUNT_NONE)
+		//何も持っていない場合木箱を掴む
+		if (g_PlayerData.playerAmontType == PLAYER_AMOUNT_NONE)
 		{
 			g_PlayerData.playerAmontType = PLAYER_AMOUNT_WOODBLOCK;
 			g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_IDLE;
@@ -136,9 +146,13 @@ void StepPowerfulPlayer()
 	}
 	if (IsPowerfulInputKey(KEY_R))
 	{
-		if(g_PlayerData.playerAmontType==PLAYER_AMOUNT_WOODBLOCK && g_PlayerData.playerAmontState==PLAYER_AMOUNT_STATE_IDLE)
+		//木箱を持っているかつ、木箱を置ける範囲がある場合
+		if (g_PlayerData.playerAmontType == PLAYER_AMOUNT_WOODBLOCK && g_PlayerData.playerAmontState == PLAYER_AMOUNT_STATE_IDLE)
 		{
-			g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_PUT;
+			if(!LimitWoodBlockPutBlock(&g_PlayerData.body, g_PlayerData.isTurn, &g_PlayerData.bodycollision, g_WoodBlock))
+			{
+				g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_PUT;
+			}
 		}
 	}
 }
@@ -161,8 +175,10 @@ void UpdatePowerfulPlayer()
 
 	WoodBlock* g_WoodBlock = GetWoodBlock();
 
+	//木箱を掴でいる時の処理
 	if (g_PlayerData.playerAmontType != PLAYER_AMOUNT_NONE)
 	{
+		//木箱を掴んでいる場合
 		if (g_PlayerData.playerAmontType == PLAYER_AMOUNT_WOODBLOCK && g_PlayerData.playerAmontState == PLAYER_AMOUNT_STATE_IDLE)
 		{
 			g_WoodBlock->pos.x = g_PlayerData.body.pos.x + g_PlayerData.bodycollision.pos.x;
@@ -171,6 +187,7 @@ void UpdatePowerfulPlayer()
 			g_WoodBlock->move.y = 0.0f;
 		}
 
+		//木箱を置く場合
 		if (g_PlayerData.playerAmontState == PLAYER_AMOUNT_STATE_PUT)
 		{
 			if (!g_PlayerData.isTurn)
@@ -185,11 +202,13 @@ void UpdatePowerfulPlayer()
 			g_PlayerData.playerAmontType = PLAYER_AMOUNT_NONE;
 		}
 	}
+	//何も持っていない場合
 	else
 	{
 		PlayerCollisionHitWoodBlock(&g_PlayerData.body, &g_PlayerData.bodycollision, g_WoodBlock);
 	}
 
+	//アニメーション更新
 	UpdatePowerfulPlayerAnimation();
 }
 
@@ -200,6 +219,7 @@ void DrawPowerfulPlayer()
 	int playerX = (int)(g_PlayerData.body.pos.x + 0.5f);
 	int	playerY = (int)(g_PlayerData.body.pos.y + 0.5f);
 
+	//カメラを取得し、カメラのy座標分プレイヤーの位置をあげる
 	PowerfulPlayerData temp = g_PlayerData;
 	CameraData camera = GetCamera();
 

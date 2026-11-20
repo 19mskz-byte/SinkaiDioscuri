@@ -42,8 +42,14 @@ bool CheckCirclePoint(float circlePosX, float circlePosY, float circleRadius, fl
 // 円と円の当たり判定
 bool CheckCircleCircle(float circleA_PosX, float circleA_PosY, float circleA_Radius, float circleB_PosX, float circleB_PosY, float circleB_Radius);
 
+//プレイヤーとブロックの当たり判定
 void MoveWithCollision(Body* body, BodyCollision* bodycollision);
 
+//ブロックと木箱の当たり判定
 void WoodBlockHitMapBlock(WoodBlock* woodBlock);
 
+//プレイヤーと木箱の当たり判定
 void PlayerCollisionHitWoodBlock(Body* body, BodyCollision* bodycollision, WoodBlock* woodBlock);
+
+//木箱が置けるかどうか
+bool LimitWoodBlockPutBlock(Body* body, bool isTurn, BodyCollision* bodycollision, WoodBlock* woodBlock);

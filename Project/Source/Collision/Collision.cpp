@@ -120,6 +120,7 @@ bool CheckCircleCircle(float circleA_PosX, float circleA_PosY, float circleA_Rad
 	return false;
 }
 
+//プレイヤーがブロックに当たった時の当たり判定
 void MoveWithCollision(Body* body, BodyCollision* bodycollision)
 {
 	float prevPosY = body->pos.y - body->move.y;
@@ -184,6 +185,7 @@ void MoveWithCollision(Body* body, BodyCollision* bodycollision)
 	}
 }
 
+//木箱がブロックに当たった時の当たり判定
 void WoodBlockHitMapBlock(WoodBlock* woodBlock)
 {
 	float prevPosY = woodBlock->pos.y - woodBlock->move.y;
@@ -249,6 +251,7 @@ void WoodBlockHitMapBlock(WoodBlock* woodBlock)
 	}
 }
 
+//プレイヤーが木箱に当たった時の当たり判定
 void PlayerCollisionHitWoodBlock(Body* body,BodyCollision* bodycollision, WoodBlock* woodBlock)
 {
 	if (!woodBlock->active)return;
@@ -291,4 +294,43 @@ void PlayerCollisionHitWoodBlock(Body* body,BodyCollision* bodycollision, WoodBl
 
 		body->move.y = 0;
 	}
-}                                                                                   
+}        
+
+//ブロックが置けるか
+bool LimitWoodBlockPutBlock(Body* body, bool isTurn, BodyCollision* bodycollision, WoodBlock* woodBlock)
+{
+	//木箱のコピーを作る
+	WoodBlock woodBlockTemp = *woodBlock;
+	//木箱のコピーを右に置く場合
+	if (!isTurn)
+	{
+		woodBlockTemp.pos.x = body->pos.x + body->width + bodycollision->width / 2;
+	}
+	//木箱のコピーを左に置く場合
+	else
+	{
+		woodBlockTemp.pos.x = body->pos.x - bodycollision->width / 2;
+	}
+
+
+	for (int y = 0; y < MAP_CHIP_Y_NUM; y++)
+	{
+		for (int x = 0; x < MAP_CHIP_X_NUM; x++)
+		{
+			MapChipData mapChipData = GetMapChipData(x, y);
+			if (mapChipData.mapChip == 0)continue;
+
+			BlockData* block = mapChipData.data;
+
+			if (CheckSquareSquare(woodBlockTemp.pos.x, woodBlockTemp.pos.y, woodBlockTemp.width, woodBlockTemp.height,
+				block->pos.x, block->pos.y, block->width, block->height))
+			{
+				//コピーの木箱がブロックに当たっている場合は本体の木箱は置けない
+				return true;
+			}
+		}
+	}
+	
+	//コピーの木箱がブロックに当たっていない場合は本体の木箱は置ける
+	return false;
+}
