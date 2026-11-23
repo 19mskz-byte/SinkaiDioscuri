@@ -60,7 +60,7 @@ void InitPowerfulPlayer()
 	g_PlayerData.body.isAir = false;
 	g_PlayerData.playerAmontType = PLAYER_AMOUNT_NONE;
 	g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_NONE;
-	g_PlayerData.playerType = PLAYER_TYPE_NONE;
+	g_PlayerData.body.playertype = PLAYER_TYPE_NONE;
 
 	for (int i = 0; i < POWERFUL_PLAYER_ANIM_MAX; i++)
 	{
@@ -79,7 +79,7 @@ void LoadPowerfulPlayer()
 
 void StartPowerfulPlayer()
 {
-	g_PlayerData.playerType = PLAYER_TYPE_POWERFUL;
+	g_PlayerData.body.playertype = PLAYER_TYPE_POWERFUL;
 	g_PlayerData.active = true;
 	g_PlayerData.body.pos.x = POWERFUL_PLAYER_DEFAULT_POS_X;
 	g_PlayerData.body.pos.y = POWERFUL_PLAYER_DEFAULT_POS_Y;
@@ -138,10 +138,11 @@ void StepPowerfulPlayer()
 	if (IsPowerfulInputKey(KEY_F))
 	{
 		//‰½‚àŽ‚Á‚Ä‚¢‚È‚¢ê‡–Ø” ‚ð’Í‚Þ
-		if (g_PlayerData.playerAmontType == PLAYER_AMOUNT_NONE)
+		if (g_PlayerData.body.amount&&g_PlayerData.playerAmontType == PLAYER_AMOUNT_NONE)
 		{
 			g_PlayerData.playerAmontType = PLAYER_AMOUNT_WOODBLOCK;
 			g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_IDLE;
+			g_PlayerData.body.amount = false;
 		}
 	}
 	if (IsPowerfulInputKey(KEY_R))

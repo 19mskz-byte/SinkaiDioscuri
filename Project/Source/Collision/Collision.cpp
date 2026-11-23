@@ -256,43 +256,94 @@ void PlayerCollisionHitWoodBlock(Body* body,BodyCollision* bodycollision, WoodBl
 {
 	if (!woodBlock->active)return;
 
-	float prevPosY = body->pos.y- body->move.y;
+	//ギミックプレイヤーの場合
+	if (body->playertype == PLAYER_TYPE_GIMMICK)
+	{
+		float prevPosY = body->pos.y - body->move.y;
 
-	if (CheckSquareSquare(body->pos.x + bodycollision->pos.x, prevPosY + bodycollision->pos.y, bodycollision->width, bodycollision->height,
-       woodBlock->pos.x, woodBlock->pos.y, woodBlock->width, woodBlock->height))
+		if (CheckSquareSquare(body->pos.x + bodycollision->pos.x, prevPosY + bodycollision->pos.y, bodycollision->width, bodycollision->height,
+			woodBlock->pos.x, woodBlock->pos.y, woodBlock->width, woodBlock->height))
+		{
+			//右からあたる
+			if (body->move.x > 0.0f)
 			{
-		//右からあたる
-		if (body->move.x > 0.0f)
-		{
-			body->pos.x = woodBlock->pos.x - bodycollision->width - bodycollision->pos.x;
+				body->amount = true;
+				body->pos.x = woodBlock->pos.x - bodycollision->width - bodycollision->pos.x;
+			}
+
+			//左からあたる
+			else if (body->move.x < 0.0f)
+			{
+				body->amount = true;
+				body->pos.x = woodBlock->pos.x + woodBlock->width - bodycollision->pos.x;
+			}
+
+			body->move.x = 0.0f;
 		}
 
-		//左からあたる
-		else if (body->move.x < 0.0f)
+		if (CheckSquareSquare(body->pos.x + bodycollision->pos.x, body->pos.y + bodycollision->pos.y, bodycollision->width, bodycollision->height,
+			woodBlock->pos.x, woodBlock->pos.y, woodBlock->width, woodBlock->height))
 		{
-			body->pos.x = woodBlock->pos.x + woodBlock->width - bodycollision->pos.x;
-		}
+			//上からあたる
+			if (body->move.y > 0.0f)
+			{
+				body->pos.y = woodBlock->pos.y - bodycollision->height - bodycollision->pos.y;
+				body->feetState = PLAYER_FEET_STATE_BLOCK;
+			}
 
-		body->move.x = 0.0f;
+			//下からあたる
+			else if (body->move.y < 0.0f)
+			{
+				body->pos.y = woodBlock->pos.y + woodBlock->height - bodycollision->pos.y;
+			}
+
+			body->move.y = 0;
+		}
 	}
 
-	if (CheckSquareSquare(body->pos.x + bodycollision->pos.x, body->pos.y + bodycollision->pos.y, bodycollision->width, bodycollision->height,
-		woodBlock->pos.x, woodBlock->pos.y, woodBlock->width, woodBlock->height))
+	//パワフルプレイヤーの場合
+	if (body->playertype == PLAYER_TYPE_POWERFUL)
 	{
-		//上からあたる
-		if (body->move.y > 0.0f)
+		float prevPosY = body->pos.y - body->move.y;
+
+		if (CheckSquareSquare(body->pos.x + bodycollision->pos.x, prevPosY + bodycollision->pos.y, bodycollision->width, bodycollision->height,
+			woodBlock->pos.x, woodBlock->pos.y, woodBlock->width, woodBlock->height))
 		{
-			body->pos.y = woodBlock->pos.y - bodycollision->height - bodycollision->pos.y;
-			body->feetState = PLAYER_FEET_STATE_BLOCK;
+			//右からあたる
+			if (body->move.x > 0.0f)
+			{
+				body->pos.x = woodBlock->pos.x - bodycollision->width - bodycollision->pos.x;
+				woodBlock->move.x = 5;
+			}
+
+			//左からあたる
+			else if (body->move.x < 0.0f)
+			{
+				body->pos.x = woodBlock->pos.x + woodBlock->width - bodycollision->pos.x;
+				woodBlock->move.x = -5;
+			}
+
+			body->move.x = 0.0f;
 		}
 
-		//下からあたる
-		else if (body->move.y < 0.0f)
+		if (CheckSquareSquare(body->pos.x + bodycollision->pos.x, body->pos.y + bodycollision->pos.y, bodycollision->width, bodycollision->height,
+			woodBlock->pos.x, woodBlock->pos.y, woodBlock->width, woodBlock->height))
 		{
-			body->pos.y = woodBlock->pos.y + woodBlock->height - bodycollision->pos.y;
-		}
+			//上からあたる
+			if (body->move.y > 0.0f)
+			{
+				body->pos.y = woodBlock->pos.y - bodycollision->height - bodycollision->pos.y;
+				body->feetState = PLAYER_FEET_STATE_BLOCK;
+			}
 
-		body->move.y = 0;
+			//下からあたる
+			else if (body->move.y < 0.0f)
+			{
+				body->pos.y = woodBlock->pos.y + woodBlock->height - bodycollision->pos.y;
+			}
+
+			body->move.y = 0;
+		}
 	}
 }        
 

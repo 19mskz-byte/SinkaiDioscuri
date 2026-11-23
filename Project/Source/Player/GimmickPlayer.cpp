@@ -67,7 +67,7 @@ void InitGimmickPlayer()
 	g_PlayerData.playerAmontType = PLAYER_AMOUNT_NONE;
 	g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_NONE;
 	g_PlayerData.isTurn = false;
-	g_PlayerData.playerType = PLAYER_TYPE_NONE;
+	g_PlayerData.body.playertype = PLAYER_TYPE_NONE;
 
 	for (int i = 0; i < GIMMICK_PLAYER_ANIM_MAX; i++)
 	{
@@ -86,7 +86,7 @@ void LoadGimmickPlayer()
 
 void StartGimmickPlayer()
 {
-	g_PlayerData.playerType = PLAYER_TYPE_GIMMICK;
+	g_PlayerData.body.playertype = PLAYER_TYPE_GIMMICK;
 	g_PlayerData.active = true;
 	g_PlayerData.isTurn = false;
 	g_PlayerData.body.pos.x = GIMMICK_PLAYER_DEFAULT_POS_X;

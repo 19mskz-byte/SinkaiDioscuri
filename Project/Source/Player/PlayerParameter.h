@@ -3,13 +3,6 @@
 #include "../Collision/Collision.h"
 #include "../Animation/Animation.h"
 
-enum PlayerType
-{
-	PLAYER_TYPE_NONE = -1,
-	PLAYER_TYPE_POWERFUL,
-	PLAYER_TYPE_GIMMICK,
-	PLAYER_TYPE_MAX,
-};
 
 // アニメーションタイプ
 enum PowerfulPlayerAnimationType
@@ -53,8 +46,7 @@ enum PlayerAmontState
 
 // プレイヤーデータ
 struct PowerfulPlayerData
-{
-	PlayerType playerType;								// プレイヤーの種類
+{								
 	bool active;										// 生存フラグ
 	bool isTurn;										// 左を向いているか
 	AnimationData* animation[POWERFUL_PLAYER_ANIM_MAX];	// アニメーション
@@ -67,7 +59,6 @@ struct PowerfulPlayerData
 
 struct GimmickPlayerData
 {
-	PlayerType playerType;								// プレイヤーの種類
 	bool active;										// 生存フラグ
 	bool isTurn;										// 左を向いているか
 	AnimationData* animation[GIMMICK_PLAYER_ANIM_MAX];	// アニメーション

@@ -2,6 +2,14 @@
 #include "DxLib.h"
 #include "../Gimmick/WoodBlock/WoodBlock.h"
 
+enum PlayerType
+{
+	PLAYER_TYPE_NONE = -1,
+	PLAYER_TYPE_POWERFUL,
+	PLAYER_TYPE_GIMMICK,
+	PLAYER_TYPE_MAX,
+};
+
 enum PlayerFeetState
 {
 	PLAYER_FEET_STATE_AIR,
@@ -22,11 +30,13 @@ struct BodyCollision
 struct Body
 {
 	bool isAir;
+	bool amount;
 	VECTOR pos;
 	VECTOR move;
 	float width;
 	float height;
 	PlayerFeetState feetState;
+	PlayerType playertype;
 };
 
 
@@ -49,7 +59,7 @@ void MoveWithCollision(Body* body, BodyCollision* bodycollision);
 void WoodBlockHitMapBlock(WoodBlock* woodBlock);
 
 //プレイヤーと木箱の当たり判定
-void PlayerCollisionHitWoodBlock(Body* body, BodyCollision* bodycollision, WoodBlock* woodBlock);
+void PlayerCollisionHitWoodBlock(Body *body, BodyCollision* bodycollision, WoodBlock* woodBlock);
 
 //木箱が置けるかどうか
 bool LimitWoodBlockPutBlock(Body* body, bool isTurn, BodyCollision* bodycollision, WoodBlock* woodBlock);
