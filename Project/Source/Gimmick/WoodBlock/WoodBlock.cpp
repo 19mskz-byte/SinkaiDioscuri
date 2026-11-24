@@ -32,13 +32,20 @@ void LoadWoodBlock()
 void StepWoodBlock()
 {
 	if (!g_WoodBlock.active) return;
+
 	for (int i = 0; i < WOOD_BLOCK_MAP_MAX; i++)
 	{
 		if (!g_WoodBlock.active) return;
 
-		g_WoodBlock.move.x = 0;
-
-		g_WoodBlock.move.y += WOOD_BLOCK_GRAVITY;
+		if (!g_WoodBlock.woodblockthrow)
+		{
+			g_WoodBlock.move.x = 0;
+			g_WoodBlock.move.y += WOOD_BLOCK_GRAVITY;
+		}
+		else
+		{
+			g_WoodBlock.move.y += 0.1f;
+		}
 	}
 }
 

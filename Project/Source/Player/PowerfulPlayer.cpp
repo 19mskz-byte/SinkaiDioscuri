@@ -138,11 +138,21 @@ void StepPowerfulPlayer()
 	if (IsPowerfulInputKey(KEY_F))
 	{
 		//‰½‚à‚Á‚Ä‚¢‚È‚¢ê‡–Ø” ‚ğ’Í‚Ş
-		if (g_PlayerData.body.amount&&g_PlayerData.playerAmontType == PLAYER_AMOUNT_NONE)
+		if (!g_PlayerData.body.amount && g_PlayerData.playerAmontType == PLAYER_AMOUNT_NONE)
 		{
-			g_PlayerData.playerAmontType = PLAYER_AMOUNT_WOODBLOCK;
-			g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_IDLE;
+			if (PlayerAmountWoodBlock(g_PlayerData.isTurn, &g_PlayerData.body, &g_PlayerData.bodycollision, g_WoodBlock))
+			{
+				g_PlayerData.playerAmontType = PLAYER_AMOUNT_WOODBLOCK;
+				g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_IDLE;
+				g_PlayerData.body.amount = true;
+			}
+		}
+		else if (g_PlayerData.body.amount && g_PlayerData.playerAmontType == PLAYER_AMOUNT_WOODBLOCK)
+		{
+			g_PlayerData.playerAmontType = PLAYER_AMOUNT_NONE;
+			g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_THROW;
 			g_PlayerData.body.amount = false;
+			g_WoodBlock->woodblockthrow = true;
 		}
 	}
 	if (IsPowerfulInputKey(KEY_R))
@@ -153,6 +163,7 @@ void StepPowerfulPlayer()
 			if(!LimitWoodBlockPutBlock(&g_PlayerData.body, g_PlayerData.isTurn, &g_PlayerData.bodycollision, g_WoodBlock))
 			{
 				g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_PUT;
+				g_PlayerData.body.amount = false;
 			}
 		}
 	}
@@ -172,20 +183,37 @@ void UpdatePowerfulPlayer()
 
 
 	// “–‚½‚è”»’è•t‚«‚ÅˆÚ“®
-	MoveWithCollision(&g_PlayerData.body,&g_PlayerData.bodycollision);
+	MoveWithCollision(&g_PlayerData.body, &g_PlayerData.bodycollision);
 
 	WoodBlock* g_WoodBlock = GetWoodBlock();
 
 	//–Ø” ‚ğ’Í‚Å‚¢‚é‚Ìˆ—
-	if (g_PlayerData.playerAmontType != PLAYER_AMOUNT_NONE)
+	if (g_PlayerData.playerAmontType == PLAYER_AMOUNT_WOODBLOCK)
 	{
 		//–Ø” ‚ğ’Í‚ñ‚Å‚¢‚éê‡
-		if (g_PlayerData.playerAmontType == PLAYER_AMOUNT_WOODBLOCK && g_PlayerData.playerAmontState == PLAYER_AMOUNT_STATE_IDLE)
+		if (g_PlayerData.playerAmontState == PLAYER_AMOUNT_STATE_IDLE)
 		{
 			g_WoodBlock->pos.x = g_PlayerData.body.pos.x + g_PlayerData.bodycollision.pos.x;
 			g_WoodBlock->pos.y = g_PlayerData.body.pos.y - g_WoodBlock->height;
 			g_WoodBlock->move.x = 0.0f;
 			g_WoodBlock->move.y = 0.0f;
+		}
+
+		//–Ø” ‚ğ“Š‚°‚éê‡
+		if (g_PlayerData.playerAmontState == PLAYER_AMOUNT_STATE_THROW)
+		{
+			//‰EŒü‚«
+			if (!g_PlayerData.isTurn)
+			{
+				g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_NONE;
+				g_WoodBlock->move.x = 15;
+			}
+			//¶Œü‚«
+			else
+			{
+				g_PlayerData.playerAmontState = PLAYER_AMOUNT_STATE_NONE;
+				g_WoodBlock->move.x = -15;
+			}
 		}
 
 		//–Ø” ‚ğ’u‚­ê‡
@@ -203,6 +231,7 @@ void UpdatePowerfulPlayer()
 			g_PlayerData.playerAmontType = PLAYER_AMOUNT_NONE;
 		}
 	}
+
 	//‰½‚à‚Á‚Ä‚¢‚È‚¢ê‡
 	else
 	{

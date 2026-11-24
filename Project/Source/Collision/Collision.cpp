@@ -236,6 +236,7 @@ void WoodBlockHitMapBlock(WoodBlock* woodBlock)
 				{
 					woodBlock->pos.y = block->pos.y - woodBlock->height;
 					woodBlock->state = WOOD_BLOCK_STATE_IDLE;
+					woodBlock->woodblockthrow = false;
 				}
 
 				//下からあたる
@@ -255,6 +256,7 @@ void WoodBlockHitMapBlock(WoodBlock* woodBlock)
 void PlayerCollisionHitWoodBlock(Body* body,BodyCollision* bodycollision, WoodBlock* woodBlock)
 {
 	if (!woodBlock->active)return;
+	if (woodBlock->woodblockthrow)return;
 
 	//ギミックプレイヤーの場合
 	if (body->playertype == PLAYER_TYPE_GIMMICK)
@@ -346,6 +348,31 @@ void PlayerCollisionHitWoodBlock(Body* body,BodyCollision* bodycollision, WoodBl
 		}
 	}
 }        
+
+//プレイヤーが木箱を持てるかどうか
+//仕組み完全にはわからず、要理解
+bool PlayerAmountWoodBlock (bool isTurn,Body* body, BodyCollision* bodycollision, WoodBlock* woodBlock)
+{
+	if (!woodBlock->active)return false;
+
+	//パワフルプレイヤーの場合
+	if (body->playertype == PLAYER_TYPE_POWERFUL)
+	{
+		float tempX = body->pos.x - (woodBlock->pos.x + woodBlock->width);
+		//右からプレイヤーとブロックの距離が0.5以下だった場合持てる
+		if (!isTurn && body->pos.x < woodBlock->pos.x && woodBlock->pos.x - (body->pos.x + body->width) < 40)
+		{
+			return true;
+		}
+
+		//左からプレイヤーとブロックの距離が0.5以下だった場合持てる
+		else if (isTurn && body->pos.x > woodBlock->pos.x && body->pos.x - (woodBlock->pos.x + woodBlock->width) < -10)
+		{
+			return true;
+		}
+	}
+	return false;
+}
 
 //ブロックが置けるか
 bool LimitWoodBlockPutBlock(Body* body, bool isTurn, BodyCollision* bodycollision, WoodBlock* woodBlock)

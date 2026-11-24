@@ -49,10 +49,11 @@ struct PowerfulPlayerData
 {								
 	bool active;										// 生存フラグ
 	bool isTurn;										// 左を向いているか
+	bool canThrow;										// 投げれるか
 	AnimationData* animation[POWERFUL_PLAYER_ANIM_MAX];	// アニメーション
 	PowerfulPlayerAnimationType playAnim;				// 再生中のアニメーション
-	Body body;											//	本体の当たり判定
-	BodyCollision bodycollision;						//	矩形の当たり判定
+	Body body;											// 本体の当たり判定
+	BodyCollision bodycollision;						// 矩形の当たり判定
 	PlayerAmontType playerAmontType;					// プレイヤーが持っている物の種類
 	PlayerAmontState playerAmontState;					// プレイヤーが持っている物の状態
 };
@@ -61,10 +62,11 @@ struct GimmickPlayerData
 {
 	bool active;										// 生存フラグ
 	bool isTurn;										// 左を向いているか
+	bool canThrow;										// 投げれるか
 	AnimationData* animation[GIMMICK_PLAYER_ANIM_MAX];	// アニメーション
 	GimmickPlayerAnimationType playAnim;				// 再生中のアニメーション
-	Body body;											//	本体の当たり判定
-	BodyCollision bodycollision;						//	矩形の当たり判定
+	Body body;											// 本体の当たり判定
+	BodyCollision bodycollision;						// 矩形の当たり判定
 	PlayerAmontType playerAmontType;					// プレイヤーが持っている物の種類
 	PlayerAmontState playerAmontState;					// プレイヤーが持っている物の状態
 };

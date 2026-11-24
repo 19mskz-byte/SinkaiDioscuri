@@ -24,6 +24,7 @@ struct  WoodBlock
 	float width;
 	float height;
 	bool active;
+	bool woodblockthrow;
 	int hundle;
 	WoodblockState state;
 };

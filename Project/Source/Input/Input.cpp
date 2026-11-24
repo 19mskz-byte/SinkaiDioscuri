@@ -102,31 +102,37 @@ void FinInput()
 
 }
 
+//Ç®ÇµÇ¡Çœ
 bool IsPowerfulInputKey(InputKey key)
 {
 	return g_PowerfulInputState & key;
 }
 
+//âüÇµÇΩèuä‘
 bool IsTriggerPowerfulInputKey(InputKey key)
 {
 	return (g_PowerfulInputState & key) && !(g_PrevPowerfulInputState & key);
 }
 
+//ó£ÇµÇΩèuä‘
 bool IsReleasePowerfulInputKey(InputKey key)
 {
 	return !(g_PowerfulInputState & key) && (g_PrevPowerfulInputState & key);
 }
 
+//Ç®ÇµÇ¡Çœ
 bool IsGimmickInputKey(InputKey key)
 {
 	return g_GimmickInputState & key;
 }
 
+//âüÇµÇΩèuä‘
 bool IsTriggerGimmickInputKey(InputKey key)
 {
 	return (g_GimmickInputState & key) && !(g_PrevGimmickInputState & key);
 }
 
+//ó£ÇµÇΩèuä‘
 bool IsReleaseGimmickInputKey(InputKey key)
 {
 	return !(g_GimmickInputState & key) && (g_PrevGimmickInputState & key);

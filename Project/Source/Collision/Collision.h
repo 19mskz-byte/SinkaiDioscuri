@@ -63,3 +63,6 @@ void PlayerCollisionHitWoodBlock(Body *body, BodyCollision* bodycollision, WoodB
 
 //–Ø” ‚ª’u‚¯‚é‚©‚Ç‚¤‚©
 bool LimitWoodBlockPutBlock(Body* body, bool isTurn, BodyCollision* bodycollision, WoodBlock* woodBlock);
+
+//–Ø” ‚ğ‚Ä‚é‚©‚Ç‚¤‚©
+bool PlayerAmountWoodBlock(bool isTurn, Body* body, BodyCollision* bodycollision, WoodBlock* woodBlock);
